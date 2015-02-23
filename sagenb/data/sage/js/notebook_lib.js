@@ -1827,6 +1827,26 @@ function live_3D_check(s) {
     async_request(worksheet_command('live_3D/' + s));
 }
 
+function input_dir_changed(s) {
+    /*
+    Send a message back to the server to change input directory.
+
+    INPUT:
+        s -- string; the path of the input directory.
+    */
+    async_request(worksheet_command('input_dir/' + escape0(s.replaceAll('/','|'))), restart_sage);
+}
+
+function next_worksheet_changed(s) {
+    /*
+    Send a message back to the server to change the next worksheet.
+
+    INPUT:
+        s -- string; the path of the next worksheet.
+    */
+    async_request(worksheet_command('next_worksheet/' + escape0(s.replaceAll('/','|'))),restart_sage);
+}
+
 function handle_data_menu(form) {
     /*
     Handle what happens when the user clicks on the worksheet data

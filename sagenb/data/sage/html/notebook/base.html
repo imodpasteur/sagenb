@@ -147,6 +147,12 @@ INPUT:
         <input id="3D_use_java", type="checkbox" title="{{ gettext('Use java for 3-D. Only applies to this running of worksheet.') }}"
                onchange="3D_use_java_check(this.checked);"
                class="worksheet" value="3D_use_java"/>&nbsp;{{ gettext('Use java for 3-D') }}
+        &nbsp;{{ gettext('Input Directory:') }}<input type="text" title="{{ gettext('Input Directory') }}"
+               onchange="input_dir_changed(this.value);"
+               class="worksheet" value={{worksheet.input_dir()}} />
+        &nbsp;{{ gettext('Next Worksheet:') }}<input type="text" title="{{ gettext('Next Worksheet') }}"
+               onchange="next_worksheet_changed(this.value);"
+               class="worksheet" value={{worksheet.next_worksheet()}} />
          {% endif %}
     {% endif %} 
     </div>

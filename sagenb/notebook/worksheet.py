@@ -160,7 +160,8 @@ class Worksheet(object):
     def __init__(self, name=None, id_number=None,
                  notebook_worksheet_directory=None, system=None,
                  owner=None, pretty_print=False,
-                 auto_publish=False, create_directories=True, live_3D=False):
+                 auto_publish=False, create_directories=True, live_3D=False, 
+                 input_dir='', next_worksheet='', icon_file=''):
         ur"""
         Create and initialize a new worksheet.
 
@@ -217,7 +218,9 @@ class Worksheet(object):
         self.__autopublish = auto_publish
         self.__saved_by_info = {}
         self.__live_3D = live_3D
-
+        self.__input_dir = input_dir
+        self.__next_worksheet = next_worksheet
+        self.__icon_file = icon_file
         # state sequence number, used for sync
         self.__state_number = 0
 
@@ -350,7 +353,11 @@ class Worksheet(object):
              # live (interactive) 3-D plots may bog down because of
              # javascript overload.
              'live_3D': self.live_3D(),
-
+            
+             'input_dir': self.input_dir(),
+             'next_worksheet': self.next_worksheet(),
+             'icon_file': self.icon_file(),
+            
              # what other users think of this worksheet: list of
              # triples
              #       (username, rating, comment)
@@ -417,7 +424,7 @@ class Worksheet(object):
                     self.__filename = filename
                     self.__dir = os.path.join(notebook_worksheet_directory, str(value))
             elif key in ['system', 'owner', 'viewers', 'collaborators',
-                         'pretty_print', 'ratings', 'live_3D']:
+                         'pretty_print', 'ratings', 'live_3D','input_dir','next_worksheet','icon_file']:
                 # ugly
                 setattr(self, '_Worksheet__' + key, value)
             elif key == 'auto_publish':
@@ -746,6 +753,30 @@ class Worksheet(object):
             name = gettext('Untitled')
         name = unicode_str(name)
         self.__name = name
+        
+    def create_next_worksheet(self, input_dir):
+        """
+        create next worksheet with input direcotry.
+
+        INPUT:
+
+        -  ``name`` - string
+
+        EXAMPLES: We create a worksheet and change the name::
+
+            sage: nb = sagenb.notebook.notebook.Notebook(tmp_dir(ext='.sagenb'))
+            sage: nb.create_default_users('password')
+            sage: W = nb.create_new_worksheet('A Test Worksheet', 'admin')
+            sage: W.create_next_worksheet('test')
+        """
+        print self.filename()
+        next_worksheet = self.notebook().get_worksheet_with_filename(self.next_worksheet())
+        if next_worksheet:
+            w = self.notebook().copy_worksheet(next_worksheet)
+            w.set_filename(next_worksheet.filename()+'('+inputdir+')')
+            w.set_input_dir(input_dir)
+        
+
 
     def set_filename_without_owner(self, nm):
         r"""
@@ -863,6 +894,11 @@ class Worksheet(object):
         if not os.path.exists(d):
             os.makedirs(d)
         return d
+    
+    def data_sub_directories(self):
+        data_dir = self.data_directory()
+        dl = os.listdir(data_dir)
+        return [d for d in dl if os.path.isdir(os.path.join(data_dir, d))]
 
     def attached_data_files(self):
         """
@@ -1118,7 +1154,159 @@ class Worksheet(object):
             sage: nb.delete()
         """
         self.__live_3D = check
+    ##########################################################
+    # input dir
+    ##########################################################
+    def input_dir(self):
+        """
+        Return the input directory of the worksheet
 
+        OUTPUT:
+
+        -  ``bool`` - True of False
+
+        EXAMPLES::
+
+            sage: nb = sagenb.notebook.notebook.Notebook(tmp_dir(ext='.sagenb'))
+            sage: nb.create_default_users('password')
+            sage: W = nb.create_new_worksheet('A Test Worksheet', 'admin')
+            sage: W.input_dir()
+            False
+            sage: W.quit()
+            sage: nb.delete()
+        """
+        try:
+            return self.__input_dir
+        except AttributeError:
+            self.__input_dir = ''
+            return self.__input_dir
+    def set_input_dir(self, inputpath=''):
+        """
+        Set the input directory of the worksheet
+
+        INPUT:
+
+        -  ``inputpath`` - string
+
+        EXAMPLES::
+
+            sage: nb = sagenb.notebook.notebook.Notebook(tmp_dir(ext='.sagenb'))
+            sage: nb.create_default_users('password')
+            sage: W = nb.create_new_worksheet('A Test Worksheet', 'admin')
+            sage: W.set_input_dir('.')
+            sage: W.input_dir()
+            .
+            sage: W.set_input_dir('')
+            sage: W.input_dir()
+            
+            sage: W.quit()
+            sage: nb.delete()
+        """
+        self.__input_dir = inputpath
+    ##########################################################
+    # next worksheet
+    ##########################################################
+    def next_worksheet(self):
+        """
+        Return a worksheet which will applied after executing this worksheet
+
+        OUTPUT:
+
+        -  ``String`` - filename of the next worksheet
+
+        EXAMPLES::
+
+            sage: nb = sagenb.notebook.notebook.Notebook(tmp_dir(ext='.sagenb'))
+            sage: nb.create_default_users('password')
+            sage: W = nb.create_new_worksheet('A Test Worksheet', 'admin')
+            sage: W.next_worksheet()
+            admin/1
+            sage: W.quit()
+            sage: nb.delete()
+        """
+        try:
+            return self.__next_worksheet
+        except AttributeError:
+            self.__next_worksheet = ''
+            return self.__next_worksheet
+        
+    def set_next_worksheet(self, w=''):
+        """
+        Set the next worksheet of this worksheet
+
+        INPUT:
+
+        -  ``check`` - boolean
+
+        EXAMPLES::
+
+            sage: nb = sagenb.notebook.notebook.Notebook(tmp_dir(ext='.sagenb'))
+            sage: nb.create_default_users('password')
+            sage: W = nb.create_new_worksheet('A Test Worksheet', 'admin')
+            sage: W.set_next_worksheet('admin/1')
+            sage: W.next_worksheet()
+            admin/1
+            sage: W.set_next_worksheet('admin/2')
+            sage: W.next_worksheet()
+            admin/2
+            sage: W.quit()
+            sage: nb.delete()
+        """
+        if w != self.filename():
+            self.__next_worksheet = w
+        else:
+            raise ValueError("next worksheet can't be the worksheet itself!")
+            
+    ##########################################################
+    # icon file
+    ##########################################################
+    def icon_file(self):
+        """
+        Return a icon file which will applied for the cover of this worksheet
+
+        OUTPUT:
+
+        -  ``String`` - filename of the icon file
+
+        EXAMPLES::
+
+            sage: nb = sagenb.notebook.notebook.Notebook(tmp_dir(ext='.sagenb'))
+            sage: nb.create_default_users('password')
+            sage: W = nb.create_new_worksheet('A Test Worksheet', 'admin')
+            sage: W.icon_file()
+            
+            sage: W.quit()
+            sage: nb.delete()
+        """
+        try:
+            if self.__icon_file == '':
+                self.__icon_file = os.path.join(self.directory(),'icon.png')
+            return self.__icon_file
+        except AttributeError:
+            self.__icon_file = ''
+            return self.__icon_file
+        
+    def set_icon_file(self, f=''):
+        """
+        Set the icon file for this worksheet
+
+        INPUT:
+
+        -  ``f`` - string
+
+        EXAMPLES::
+
+            sage: nb = sagenb.notebook.notebook.Notebook(tmp_dir(ext='.sagenb'))
+            sage: nb.create_default_users('password')
+            sage: W = nb.create_new_worksheet('A Test Worksheet', 'admin')
+            sage: W.set_icon_file('a.jpg')
+            sage: W.icon_file()
+            a.jpg
+            sage: W.quit()
+            sage: nb.delete()
+        """
+        self.__icon_file = f
+            
     ##########################################################
     # Publication
     ##########################################################
@@ -3032,8 +3220,12 @@ import sagenb.notebook.interact as _interact_ # for setting current cell id
 
 DATA = %r
 DIR = %r
+INPUT_DIR = %r
+NEXT_WORKSHEET = %r
+ICON_FILE = %r
 import sys; sys.path.append(DATA)
 _support_.init(None, globals())
+
 
 # The following is Sage-specific -- this immediately bombs out if sage isn't installed.
 from sage.all_notebook import *
@@ -3042,11 +3234,12 @@ sage.misc.latex.EMBEDDED_MODE=True
 # TODO: For now we take back sagenb interact; do this until the sage notebook
 # gets removed from the sage library.
 from sagenb.notebook.all import *
+
 try:
     load(os.path.join(os.environ['DOT_SAGE'], 'init.sage'), globals(),attach=True)
 except (KeyError, IOError):
     pass
-    """ % (os.path.join(os.path.abspath(self.data_directory()),''), misc.DIR)
+    """ % (os.path.join(os.path.abspath(self.data_directory()),''), misc.DIR, self.input_dir(), self.next_worksheet(), self.icon_file())
             S.execute(cmd)
             S.output_status()
 

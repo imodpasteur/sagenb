@@ -175,11 +175,17 @@ INPUT:
 
             <td class="worksheet_link">
                 <a title="{{ worksheet.name() | escape }}" id="name-{{ name|css_escape }}" class="worksheetname" href="/home/{{ name }}/">
-                    {% if worksheet.compute_process_has_been_started() %}({{ gettext('running') }}){% endif %}
+                    {% if worksheet.compute_process_has_been_started() %}{{ gettext('*') }}{% endif %}
+                    {% if worksheet.computing() %}({{ gettext('computing') }}){% endif %}
                     {{ worksheet.truncated_name(50) | escape}}
                 </a>
                 
                 {% if not pub and worksheet.is_published() %}(Published){% endif %}
+                <ul> 
+                    {% for data_sub_dir in worksheet.data_sub_directories() %}
+                    <li>{{data_sub_dir}}</li>
+                    {% endfor %}
+                </ul>
             </td>
             <td class="owner_collab">
 

@@ -148,6 +148,10 @@ def worksheet_command(target, **route_kwds):
         return wrapper
     return decorator
 
+@worksheet_command('create_next_worksheet/<input_dir>')
+def create_next_worksheet(worksheet,input_dir):
+    worksheet.create_next_worksheet(input_dir)
+    return 'success'
 
 @worksheet_command('rename')
 def worksheet_rename(worksheet):
@@ -176,6 +180,15 @@ def worksheet_live_3D(worksheet, enable):
         worksheet.set_live_3D(False)
     return 'success'
 
+@worksheet_command('input_dir/<newdir>')
+def worksheet_input_dir(worksheet, newdir):
+    worksheet.set_input_dir(newdir.replace('|','/'))
+    return 'success'
+
+@worksheet_command('next_worksheet/<newworksheet>')
+def worksheet_next_worksheet(worksheet, newworksheet):
+    worksheet.set_next_worksheet(newworksheet.replace('|','/'))
+    return 'success'
 
 @worksheet_command('conf')
 def worksheet_conf(worksheet):
