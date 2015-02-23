@@ -36,6 +36,8 @@ import string
 import time
 import traceback
 import locale
+import sys
+from StringIO import StringIO
 
 # General sage library code
 from sagenb.misc.misc import (cython, load, save,
@@ -208,7 +210,7 @@ class Worksheet(object):
             # A fresh worksheet
             self.clear()
             return
-
+        
         # Record the basic properties of the worksheet
         self.__system = system
         self.__pretty_print = pretty_print
@@ -769,12 +771,16 @@ class Worksheet(object):
             sage: W = nb.create_new_worksheet('A Test Worksheet', 'admin')
             sage: W.create_next_worksheet('test')
         """
-        print self.filename()
         next_worksheet = self.notebook().get_worksheet_with_filename(self.next_worksheet())
         if next_worksheet:
-            w = self.notebook().copy_worksheet(next_worksheet)
-            w.set_filename(next_worksheet.filename()+'('+inputdir+')')
+            w = self.notebook().copy_worksheet(next_worksheet,self.owner())
+            w.set_name(next_worksheet.name()+'('+os.path.basename(os.path.normpath(input_dir)+'-'+input_dir+')')
             w.set_input_dir(input_dir)
+            print(w.filename())
+            return w
+        else:
+            print("invalid next worksheet")
+            return None
         
 
 
@@ -3220,7 +3226,7 @@ import sagenb.notebook.interact as _interact_ # for setting current cell id
 
 DATA = %r
 DIR = %r
-INPUT_DIR = %r
+INPUT_DIRECTORY = %r
 NEXT_WORKSHEET = %r
 ICON_FILE = %r
 import sys; sys.path.append(DATA)
@@ -3271,7 +3277,11 @@ except (KeyError, IOError):
         # We do this to diagnose google issue 81; once we
         # have fixed that issue, we can remove this next statement
         T = self.__sage
-
+        
+        # regex for match worksheet_execute command
+        import re
+        self._worksheet_eval_regex = re.compile(r'^[\s]*worksheet_execute\{\{(.+?)\}\}', re.MULTILINE|re.DOTALL)
+        
         return S
 
     def sage(self):
@@ -3726,7 +3736,11 @@ except (KeyError, IOError):
         for c in self.cell_list():
             if c.is_auto_cell():
                 self.enqueue(c)
-
+                
+    def enqueue_all_cells(self):
+        for c in self.cell_list():
+            self.enqueue(c)
+                
     def next_id(self):
         try:
             return self.__next_id
@@ -3947,7 +3961,35 @@ except (KeyError, IOError):
             return out
 
         out = out.replace("NameError: name 'os' is not defined", "NameError: name 'os' is not defined\nTHERE WAS AN ERROR LOADING THE SAGE LIBRARIES.  Try starting Sage from the command line to see what the error is.")
-
+        
+        exe_out = out
+        try:
+            if self.__lastOut:
+                exe_out = out.replace(self.__lastOut,'', 1)
+        except:
+            pass
+        finally:
+            self.__lastOut = out
+        
+        # capture message like "worksheet_execute{{print 'hello' }}"
+        try:
+            output_buffer = StringIO()
+            stdout_org = sys.stdout
+            sys.stdout = output_buffer
+            matches = self._worksheet_eval_regex.findall(exe_out)
+            import traceback
+            for m in matches:
+                try:
+                    print('-----------\nworksheet>>> '+m)
+                    exec(m)
+                except:
+                    print traceback.format_exc()
+            out += output_buffer.getvalue()
+        except:
+            print traceback.format_exc()
+        finally:
+            sys.stdout = stdout_org
+        
         # Todo: what does this do?  document this
         try:
             tb = 'Traceback (most recent call last):'
