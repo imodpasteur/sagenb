@@ -774,7 +774,7 @@ class Worksheet(object):
         next_worksheet = self.notebook().get_worksheet_with_filename(self.next_worksheet())
         if next_worksheet:
             w = self.notebook().copy_worksheet(next_worksheet,self.owner())
-            w.set_name(next_worksheet.name()+'('+os.path.basename(os.path.normpath(input_dir)+'-'+input_dir+')')
+            w.set_name(next_worksheet.name()+'('+os.path.basename(os.path.normpath(input_dir))+')('+w.filename()+')')
             w.set_input_dir(input_dir)
             print(w.filename())
             return w
