@@ -3232,6 +3232,7 @@ INPUT_DIRECTORY = %r
 NEXT_WORKSHEET = %r
 ICON_FILE = %r
 SERVER_PORT = %r
+CURRENT_WORKSHEET = %r
 import sys; sys.path.append(DATA)
 _support_.init(None, globals())
 
@@ -3248,7 +3249,7 @@ try:
     load(os.path.join(os.environ['DOT_SAGE'], 'init.sage'), globals(),attach=True)
 except (KeyError, IOError):
     pass
-    """ % (os.path.join(os.path.abspath(self.data_directory()),''), misc.DIR, self.input_dir(), self.next_worksheet(), self.icon_file(),self.notebook().port)
+    """ % (os.path.join(os.path.abspath(self.data_directory()),''), misc.DIR, self.input_dir(), self.next_worksheet(), self.icon_file(),self.notebook().port, self.filename())
             S.execute(cmd)
             S.output_status()
 
@@ -3280,10 +3281,6 @@ except (KeyError, IOError):
         # We do this to diagnose google issue 81; once we
         # have fixed that issue, we can remove this next statement
         T = self.__sage
-        
-        # regex for match worksheet_execute command
-        import re
-        self._worksheet_eval_regex = re.compile(r'^[\s]*worksheet_execute\{\{(.+?)\}\}', re.MULTILINE|re.DOTALL)
         
         return S
 
@@ -3964,34 +3961,6 @@ except (KeyError, IOError):
             return out
 
         out = out.replace("NameError: name 'os' is not defined", "NameError: name 'os' is not defined\nTHERE WAS AN ERROR LOADING THE SAGE LIBRARIES.  Try starting Sage from the command line to see what the error is.")
-        
-        exe_out = out
-        try:
-            if self.__lastOut:
-                exe_out = out.replace(self.__lastOut,'', 1)
-        except:
-            pass
-        finally:
-            self.__lastOut = out
-        
-        # capture message like "worksheet_execute{{print 'hello' }}"
-        try:
-            output_buffer = StringIO()
-            stdout_org = sys.stdout
-            sys.stdout = output_buffer
-            matches = self._worksheet_eval_regex.findall(exe_out)
-            import traceback
-            for m in matches:
-                try:
-                    print('-----------\nworksheet>>> '+m)
-                    exec(m)
-                except:
-                    print traceback.format_exc()
-            out += output_buffer.getvalue()
-        except:
-            print traceback.format_exc()
-        finally:
-            sys.stdout = stdout_org
         
         # Todo: what does this do?  document this
         try:
