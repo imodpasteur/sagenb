@@ -455,6 +455,19 @@ def worksheet_eval(worksheet):
 
     return encode_response(r)
 
+@worksheet_command('worksheet_status_update')
+def worksheet_status_update(worksheet):
+    # update the computation one "step".
+    worksheet.check_comp()
+
+    # Compute 'em, if we got 'em.
+    worksheet.start_next_comp()
+    
+    r = {}
+    r['id'] = worksheet.filename_without_owner()
+    r['status'] = worksheet.status_text()
+    r['computing'] = worksheet.computing()
+    return encode_response(r)
 
 @worksheet_command('cell_update')
 def worksheet_cell_update(worksheet):

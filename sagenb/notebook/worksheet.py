@@ -223,6 +223,7 @@ class Worksheet(object):
         self.__input_dir = input_dir
         self.__next_worksheet = next_worksheet
         self.__icon_file = icon_file
+        self.__status_text = ''
         # state sequence number, used for sync
         self.__state_number = 0
 
@@ -359,7 +360,7 @@ class Worksheet(object):
              'input_dir': self.input_dir(),
              'next_worksheet': self.next_worksheet(),
              'icon_file': self.icon_file(),
-            
+             'status_text': self.status_text(),
              # what other users think of this worksheet: list of
              # triples
              #       (username, rating, comment)
@@ -426,7 +427,7 @@ class Worksheet(object):
                     self.__filename = filename
                     self.__dir = os.path.join(notebook_worksheet_directory, str(value))
             elif key in ['system', 'owner', 'viewers', 'collaborators',
-                         'pretty_print', 'ratings', 'live_3D','input_dir','next_worksheet','icon_file']:
+                         'pretty_print', 'ratings', 'live_3D','input_dir','next_worksheet','icon_file','status_text']:
                 # ugly
                 setattr(self, '_Worksheet__' + key, value)
             elif key == 'auto_publish':
@@ -1164,6 +1165,16 @@ class Worksheet(object):
             sage: nb.delete()
         """
         self.__live_3D = check
+        
+    def status_text(self):
+        try:
+            return self.__status_text
+        except AttributeError:
+            return ''
+        
+    def set_status_text(self, status_text):
+        self.__status_text = status_text
+
     ##########################################################
     # input dir
     ##########################################################
@@ -3140,6 +3151,7 @@ class Worksheet(object):
     ##########################################################
     # Managing whether computing is happening: stop, start, clear, etc.
     ##########################################################
+        
     def clear(self):
         self.__comp_is_running = False
         self.__queue = []

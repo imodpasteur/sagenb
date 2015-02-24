@@ -88,7 +88,7 @@ def save_notebook(notebook):
 
         else:
             kw['open_page'] = ''
-
+        kw['setup_socketio'] = 'False'
 
     def profile_file(self, profile):
         import random

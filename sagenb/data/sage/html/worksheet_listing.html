@@ -34,6 +34,9 @@ INPUT:
 </script>
 <script type="text/javascript" src="/javascript/sage/js/notebook_lib.js"></script>
 <script type="text/javascript" src="/javascript/dynamic/notebook_dynamic.js"></script>
+<script type="text/javascript">
+    setTimeout("self.location.reload();",1000);
+</script>
 {% else %}
 <script type="text/javascript" src="/javascript/sage/js/ws_list.js"></script>
 {% endif %}
@@ -176,7 +179,8 @@ INPUT:
             <td class="worksheet_link">
                 <a title="{{ worksheet.name() | escape }}" id="name-{{ name|css_escape }}" class="worksheetname" href="/home/{{ name }}/">
                     {% if worksheet.compute_process_has_been_started() %}{{ gettext('*') }}{% endif %}
-                    {% if worksheet.computing() %}({{ gettext('computing') }}){% endif %}
+                    {% if worksheet.check_comp() and worksheet.start_next_comp() %}{% endif %}
+                    {% if worksheet.computing() %}({{ gettext('computing') }} {{worksheet.status_text()}}){% endif %}
                     {{ worksheet.truncated_name(50) | escape}}
                 </a>
                 
