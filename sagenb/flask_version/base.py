@@ -438,7 +438,6 @@ def create_app(path_to_notebook, *args, **kwds):
             app.socketio = SocketIO(app)
             @app.socketio.on('execute')
             def handle_command(cmd):
-                output = ''
                 try:
                     print('executing:\n'+cmd)
                     stdout_org = sys.stdout
@@ -446,13 +445,12 @@ def create_app(path_to_notebook, *args, **kwds):
                     sys.stdout = output_buffer
                     ns = {'notebook':notebook}
                     exec(cmd) in ns
-                    output = output_buffer.getvalue()
-                    app.socketio.emit('output','hello')
+                    app.socketio.emit('output',output_buffer.getvalue())
                 except:
                     print traceback.format_exc()
                 finally:
                     sys.stdout = stdout_org
-                    print('output:\n'+output)
+                    print('output:\n'+output_buffer.getvalue())
             print('socketio setup done')
     except:
         print('setup socketio failed')

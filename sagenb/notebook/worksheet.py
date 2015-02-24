@@ -756,7 +756,7 @@ class Worksheet(object):
         name = unicode_str(name)
         self.__name = name
         
-    def create_next_worksheet(self, input_dir):
+    def create_next_worksheet(self, input_dir, username=None):
         """
         create next worksheet with input direcotry.
 
@@ -771,13 +771,15 @@ class Worksheet(object):
             sage: W = nb.create_new_worksheet('A Test Worksheet', 'admin')
             sage: W.create_next_worksheet('test')
         """
+        if username == None:
+            username = self.owner()
         next_worksheet = self.notebook().get_worksheet_with_filename(self.next_worksheet())
         if next_worksheet:
-            w = self.notebook().copy_worksheet(next_worksheet,self.owner())
+            w = self.notebook().copy_worksheet(next_worksheet,username)
             w.set_name(next_worksheet.name()+'('+os.path.basename(os.path.normpath(input_dir))+')('+w.filename()+')')
             w.set_input_dir(input_dir)
             w.delete_cells_directory()
-            w.delete_all_output()
+            w.delete_all_output(username)
             print(w.filename())
             return w
         else:
