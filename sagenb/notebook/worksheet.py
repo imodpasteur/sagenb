@@ -776,6 +776,8 @@ class Worksheet(object):
             w = self.notebook().copy_worksheet(next_worksheet,self.owner())
             w.set_name(next_worksheet.name()+'('+os.path.basename(os.path.normpath(input_dir))+')('+w.filename()+')')
             w.set_input_dir(input_dir)
+            w.delete_cells_directory()
+            w.delete_all_output()
             print(w.filename())
             return w
         else:
@@ -3229,6 +3231,7 @@ DIR = %r
 INPUT_DIRECTORY = %r
 NEXT_WORKSHEET = %r
 ICON_FILE = %r
+SERVER_PORT = %r
 import sys; sys.path.append(DATA)
 _support_.init(None, globals())
 
@@ -3245,7 +3248,7 @@ try:
     load(os.path.join(os.environ['DOT_SAGE'], 'init.sage'), globals(),attach=True)
 except (KeyError, IOError):
     pass
-    """ % (os.path.join(os.path.abspath(self.data_directory()),''), misc.DIR, self.input_dir(), self.next_worksheet(), self.icon_file())
+    """ % (os.path.join(os.path.abspath(self.data_directory()),''), misc.DIR, self.input_dir(), self.next_worksheet(), self.icon_file(),self.notebook().port)
             S.execute(cmd)
             S.output_status()
 

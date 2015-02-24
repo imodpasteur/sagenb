@@ -37,6 +37,8 @@ install_requires = [ 'twisted>=11.0.0'
                    , 'babel'
                    , 'flask-babel'
                    , 'webassets'
+                   , 'flask-socketio'
+                   , 'socketio-client==0.5.5'
                    ]
 
 if __name__ == '__main__':

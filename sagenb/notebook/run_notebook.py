@@ -48,6 +48,9 @@ sagenb.notebook.misc.DIR = %(cwd)r #We should really get rid of this!
 import os, sys, random
 import sagenb.flask_version.base as flask_base
 opts={}
+
+opts['setup_socketio'] = %(setup_socketio)s
+
 startup_token = '{0:x}'.format(random.randint(0, 2**128))
 if %(automatic_login)s:
     opts['startup_token'] = startup_token
@@ -215,7 +218,49 @@ finally:
             profilecmd=''
         cmd = 'python %s %s' % (profilecmd, run_file)
         return cmd
+    
+class NotebookRunFlaskSocketIO(NotebookRun):
+    name="flask_socketio"
+    FLASK_NOTEBOOK_CONFIG = """
+import os
+with open(%(pidfile)r, 'w') as pidfile:
+    pidfile.write(str(os.getpid()))
+    
+import logging
+logger=logging.getLogger('werkzeug')
+logger.setLevel(logging.WARNING)
+#logger.setLevel(logging.INFO) # to see page requests
+#logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
+#flask_app.debug = False
 
+%(open_page)s
+try:
+    flask_app.socketio.run(flask_app, host=%(interface)r, port=%(port)s, use_reloader= False)
+finally:
+    save_notebook(flask_base.notebook)
+    os.unlink(%(pidfile)r)
+"""
+
+    def run_command(self, kw):
+        """Run a flask (werkzeug) webserver."""
+        # TODO: Check to see if server is running already (PID file?)
+        self.prepare_kwds(kw)
+        run_file = os.path.join(kw['directory'], 'run_flask_socketio')
+
+        #setup socketio
+        kw['setup_socketio'] = 'True'
+        
+        with open(run_file, 'w') as script:
+            script.write((self.config_stub+self.FLASK_NOTEBOOK_CONFIG)%kw)
+        
+        if kw['profile']:
+            profilecmd = '-m cProfile -o %s'%self.profile_file(kw['profile'])
+        else:
+            profilecmd=''
+        cmd = 'python %s %s' % (profilecmd, run_file)
+        return cmd
+    
 class NotebookRunTwisted(NotebookRun):
     name="twistd"
     TWISTD_NOTEBOOK_CONFIG = """
@@ -434,7 +479,7 @@ def notebook_setup(self=None):
 
     print "Successfully configured notebook."
 
-command={'flask': NotebookRunFlask, 'twistd': NotebookRunTwisted, 'uwsgi': NotebookRunuWSGI, 'tornado': NotebookRunTornado}
+command={'flask': NotebookRunFlask, 'flask_socketio':NotebookRunFlaskSocketIO, 'twistd': NotebookRunTwisted, 'uwsgi': NotebookRunuWSGI, 'tornado': NotebookRunTornado}
 def notebook_run(self,
              directory     = None,
              port          = 8080,
@@ -634,7 +679,6 @@ def notebook_run(self,
         return pexpect.spawn(cmd)
     else:
         e = os.system(cmd)
-
     os.chdir(cwd)
     if e == 256:
         raise socket.error

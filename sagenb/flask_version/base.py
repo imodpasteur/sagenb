@@ -398,7 +398,7 @@ def create_app(path_to_notebook, *args, **kwds):
     """
     global notebook
     startup_token = kwds.pop('startup_token', None)
-
+    setup_socketio = kwds.pop('setup_socketio', False)
     #############
     # OLD STUFF #
     #############
@@ -406,7 +406,7 @@ def create_app(path_to_notebook, *args, **kwds):
     notebook.MATHJAX = True
     notebook = notebook.load_notebook(path_to_notebook, *args, **kwds)
     init_updates()
-
+    
     ##############
     # Create app #
     ##############
@@ -419,6 +419,45 @@ def create_app(path_to_notebook, *args, **kwds):
     def set_notebook_object():
         g.notebook = notebook
 
+        
+    ###################
+    # SETUP SOCKETIO  #
+    ###################
+    try:
+        import traceback
+        if setup_socketio:
+            print('setting up socketio...')
+            try:
+                print(app.socketio)
+            except:
+                pass
+            from flask.ext.socketio import SocketIO
+            from StringIO import StringIO
+            import sys
+            
+            app.socketio = SocketIO(app)
+            @app.socketio.on('execute')
+            def handle_command(cmd):
+                output = ''
+                try:
+                    print('executing:\n'+cmd)
+                    stdout_org = sys.stdout
+                    output_buffer = StringIO()
+                    sys.stdout = output_buffer
+                    ns = {'notebook':notebook}
+                    exec(cmd) in ns
+                    output = output_buffer.getvalue()
+                    app.socketio.emit('output','hello')
+                except:
+                    print traceback.format_exc()
+                finally:
+                    sys.stdout = stdout_org
+                    print('output:\n'+output)
+            print('socketio setup done')
+    except:
+        print('setup socketio failed')
+        print traceback.format_exc()
+        
     ####################################
     # create Babel translation manager #
     ####################################
