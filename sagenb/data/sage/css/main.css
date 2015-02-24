@@ -492,10 +492,21 @@ div.legacy_insert_new_cell:hover{background-color:#8888fe;}
 /* line 974 */
 div.wksht-icon_button {display:inline-block;}
 
+li.subworksheet {padding-left: 20px;}
+
 /* line 977, ../../../../sass/src/main.scss */
-a.worksheetname { text-decoration: none; font-weight: bold; font-size: 14px; color: #222222; }
+a.worksheetname { text-decoration: none; font-weight: normal; font-size: 14px; color: #222222; }
 /* line 982, ../../../../sass/src/main.scss */
 a.worksheetname:visited { color: #222222; }
+
+a.runningworksheetname { text-decoration: none; font-weight: bold; font-size: 14px; color: #222222; }
+/* line 982, ../../../../sass/src/main.scss */
+a.runningworksheetname:visited { color: #222222; }
+
+a.subworksheetname { text-decoration: none; font-weight: lighter; font-size: 12px; color: #3d2d7e; }
+/* line 982, ../../../../sass/src/main.scss */
+a.subworksheetname:visited { color: #3d2d7e; }
+
 /* line 984, ../../../../sass/src/main.scss */
 a.worksheetname_moved { color: #888888; text-decoration: none; font-weight: normal; }
 

@@ -35,7 +35,7 @@ INPUT:
 <script type="text/javascript" src="/javascript/sage/js/notebook_lib.js"></script>
 <script type="text/javascript" src="/javascript/dynamic/notebook_dynamic.js"></script>
 <script type="text/javascript">
-    setTimeout("self.location.reload();",20000);
+    setTimeout("self.location.reload(true);",30000);
 </script>
 {% else %}
 <script type="text/javascript" src="/javascript/sage/js/ws_list.js"></script>
@@ -177,19 +177,13 @@ INPUT:
             </td>
 
             <td class="worksheet_link">
-                <a title="{{ worksheet.name() | escape }}" id="name-{{ name|css_escape }}" class="worksheetname" href="/home/{{ name }}/">
+                <a title="{{ worksheet.name() | escape }}" id="name-{{ name|css_escape }}" class="{% if worksheet.computing() %} {{'runningworksheetname'}} {% else %} {{'worksheetname'}} {% endif %}" href="/home/{{ name }}/">
                     {% if worksheet.compute_process_has_been_started() %}{{ gettext('*') }}{% endif %}
                     {% if worksheet.check_comp() and worksheet.start_next_comp() %}{% endif %}
                     {% if worksheet.computing() %}({{ gettext('computing') }} {{worksheet.status_text()}}){% endif %}
                     {{ worksheet.truncated_name(50) | escape}}
                 </a>
-                
                 {% if not pub and worksheet.is_published() %}(Published){% endif %}
-                <ul> 
-                    {% for data_sub_dir in worksheet.data_sub_directories() %}
-                    <li>{{data_sub_dir}}</li>
-                    {% endfor %}
-                </ul>
             </td>
             <td class="owner_collab">
 
@@ -235,6 +229,104 @@ INPUT:
                 {{ worksheet.html_time_nice_edited(username) }}
             </td>
         </tr>
+            {% set parentWorksheet = worksheet %}
+            {% for worksheet in worksheets %}
+            {% if not parentWorksheet == worksheet %}
+            {% if parentWorksheet.data_directory() in worksheet.input_dir() %}
+                {% set name = worksheet.filename() %}
+                <tr bgcolor="#e7e9eb">
+                    <td class="entry">
+                        <li class="subworksheet">
+                            {% if pub %}
+
+                            <a class="worksheet_edit" href="/home/{{ name }}/rating_info">
+                                {% if worksheet.rating() < 0 %}
+                                ----
+                                {% else %}
+                                {{ worksheet.rating() }}
+                                {% endif %}
+                            </a>
+
+                            {% else %}
+
+                            <input type="checkbox" unchecked id="{{ name|css_escape }}" />
+                            {# I'm removing this select since it is a massive performance killer and these 
+                            serve no real purpose at all.  Plus google docs got rid of the analogous menu.
+                            <select onchange="go_option(this);" class="worksheet_edit">
+                                <option value="" title="File options" selected>File</option>
+                                <option value="list_rename_worksheet('{{ name }}','{{ worksheet.name() }}');" title="Change the name of this worksheet.">
+                                    Rename...
+                                </option>            
+                                <option value="list_edit_worksheet('{{ name }}');" title="Open this worksheet and edit it">Edit</option>
+                                <option value="list_copy_worksheet('{{ name }}');" title="Copy this worksheet">Copy Worksheet</option>
+                                <option value="list_share_worksheet('{{ name }}');" title="Share this worksheet with others">Collaborate</option>
+                                <option value="list_publish_worksheet('{{ name }}');" title="Publish this worksheet on the internet">Publish</option>
+                                <option value="list_revisions_of_worksheet('{{ name }}');" title="See all revisions of this worksheet">Revisions</option>
+                            </select>
+                            #}      
+                            {% endif %}
+                        </li>
+                    </td>
+
+                    <td class="worksheet_link">
+                        <li class="subworksheet">
+                            <a title="{{ worksheet.name() | escape }}" id="name-{{ name|css_escape }}" class="{% if worksheet.computing() %}{{'runningworksheetname'}}{% else %}{{'subworksheetname'}}{% endif %}" href="/home/{{ name }}/">
+                                {% if worksheet.compute_process_has_been_started() %}{{ gettext('*') }}{% endif %}
+                                {% if worksheet.check_comp() and worksheet.start_next_comp() %}{% endif %}
+                                {% if worksheet.computing() %}({{ gettext('computing') }} {{worksheet.status_text()}}){% endif %}
+                                {{ worksheet.truncated_name(50) | escape}}
+                            </a>
+
+                            {% if not pub and worksheet.is_published() %}(Published){% endif %}
+                        </li>
+                    </td>
+                    <td class="owner_collab">
+
+                        {% if not pub %}
+                        {{ worksheet.owner() }}
+                        {% else %}
+                        {{worksheet.worksheet_that_was_published().owner()}}
+                        {% endif %}
+
+                        {% if not pub and typ != 'trash' %}
+
+                        {% set shared = False %}
+
+                        {% if worksheet.collaborator_names() %}
+                        / {{ worksheet.collaborator_names(5) }}
+                        {% set shared = True %}
+                        {% endif %}
+
+                        {% if worksheet.viewer_names() %}
+                        / {{ worksheet.viewer_names(5) }}
+                        {% set shared = True %}
+                        {% endif %}
+
+                        {% if (worksheet.owner() != username) or username == 'admin' %}
+                        {% set shared = False %}
+                        {% endif %}
+
+                        {% if shared %}
+                        <a class="share" href="/home/{{ worksheet.filename() }}/share">{{ gettext('Add or Delete') }}</a>
+                        {% else %}
+                        <a class="share" href="/home/{{ worksheet.filename() }}/share">{{ gettext('Share now') }}</a>
+                        {% endif %}
+
+                        {% if worksheet.has_published_version() %}
+                        <a href="/home/{{ worksheet.published_version().filename() }}">
+                            ({{ gettext('published') }})
+                        </a>
+                        {% endif %}
+
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ worksheet.html_time_nice_edited(username) }}
+                    </td>
+                </tr>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
         {% endfor %}
         {% endif %}
     </tbody>
