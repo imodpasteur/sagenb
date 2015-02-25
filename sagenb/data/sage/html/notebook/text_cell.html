@@ -29,13 +29,13 @@ INPUT:
                 $("#insert_new_text_cell_before{{ cell.id() }}").bind("click",function (e) {
                    insert_new_text_cell_before({{ '%r'|format(cell.id()) }});
                 });
-                $("#legacy_new_cell_before{{ cell.id() }}").bind("click",function (e) {
-                   if (e.shiftKey){
-                      insert_new_text_cell_before({{ '%r'|format(cell.id()) }});
-                   } else {
-                      insert_new_cell_before({{ '%r'|format(cell.id()) }});
-                   }
-                });
+//                $("#legacy_new_cell_before{{ cell.id() }}").bind("click",function (e) {
+//                   if (e.shiftKey){
+//                      insert_new_text_cell_before({{ '%r'|format(cell.id()) }});
+//                   } else {
+//                      insert_new_cell_before({{ '%r'|format(cell.id()) }});
+//                   }
+//                });
             </script>
     {% endif %}
     <div class="text_cell" id="cell_text_{{ cell.id() }}">

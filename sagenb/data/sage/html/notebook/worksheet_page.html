@@ -49,13 +49,13 @@ INPUT:
         $("#insert_new_last_text_cell").bind("click", function (e) {
             insert_new_text_cell_after(cell_id_list[cell_id_list.length - 1]);
         });
-        $("#legacy_new_last_cell").bind("click",function (e) {
-            if (e.shiftKey){
-                insert_new_text_cell_after(cell_id_list[cell_id_list.length - 1]);
-            } else {
-                insert_new_cell_after(cell_id_list[cell_id_list.length - 1]);
-            }
-         });
+//        $("#legacy_new_last_cell").bind("click",function (e) {
+//            if (e.shiftKey){
+//                insert_new_text_cell_after(cell_id_list[cell_id_list.length - 1]);
+//            } else {
+//                insert_new_cell_after(cell_id_list[cell_id_list.length - 1]);
+//            }
+//         });
         {% endif %}
     </script>
 </div>
