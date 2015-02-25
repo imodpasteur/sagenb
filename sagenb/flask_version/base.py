@@ -466,9 +466,11 @@ def create_app(path_to_notebook, *args, **kwds):
             if w.computing():
                 w.check_comp()
                 w.start_next_comp()
-            elif not w.compute_process_has_been_started() and w.option('keep_live', False):
+            elif not w.compute_process_has_been_started() and w.keep_live():
                 print('Autorun worksheet: %s'%w.filename())
+                w.restart_sage()
                 w.enqueue_all_cells()
+                w.check_comp()
                 
     app.run_keeper = Scheduler(1.0, keep_everything_running)
     

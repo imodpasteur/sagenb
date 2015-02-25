@@ -271,7 +271,7 @@ INPUT:
 
                     <td class="worksheet_link">
                         <li class="subworksheet">
-                            <a title="{{ worksheet.name() | escape }}" id="name-{{ name|css_escape }}" class="{% if worksheet.computing() %}{{'runningworksheetname'}}{% else %}{{'subworksheetname'}}{% endif %}" href="/home/{{ name }}/">
+                            <a title="{{ worksheet.name() | escape }}" id="name-{{ name|css_escape }}" class="{{'subworksheetname'}}" href="/home/{{ name }}/">
                                 {% if worksheet.compute_process_has_been_started() %}{{ gettext('*') }}{% endif %}
                                 {% if worksheet.check_comp() and worksheet.start_next_comp() %}{% endif %}
                                 {% if worksheet.computing() %} ({{ gettext('computing') }} {{worksheet.status_text()}}) {% endif %}

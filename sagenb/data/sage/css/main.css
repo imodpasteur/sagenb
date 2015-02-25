@@ -78,6 +78,7 @@ div#worksheet-list-controls div.folders { float: left; clear: right; margin-left
 #worksheet-bar a.worksheet_title:hover { background-color: #ffffcc; cursor: pointer; }
 /* line 37, ../../../../sass/src/main.scss */
 #worksheet-bar div.worksheet_title { float: left; clear: left; padding-left: 1em; background-color: white; color: black; margin-bottom: 0.5em; }
+
 /* line 44, ../../../../sass/src/main.scss */
 #worksheet-bar #save-discard-buttons { float: right; clear: right; }
 /* line 47, ../../../../sass/src/main.scss */
@@ -313,6 +314,15 @@ a.worksheet_title:hover { background-color: #ffffcc; cursor: pointer; }
 
 /* line 546, ../../../../sass/src/main.scss */
 div.worksheet_title { padding-left: 1em; background-color: white; color: black; }
+
+div.input_dir {font-size: 12px; display:inline; padding-left: 1em; background-color: white; color: #1E4ABD; }
+div.input_dir:hover { background-color: #fafac8; cursor: pointer; }
+
+div.next_worksheet {font-size: 12px; display:inline; padding-left: 1em; background-color: white; color: #1E4ABD; }
+div.next_worksheet:hover { background-color: #fafac8; cursor: pointer; }
+
+div.run_stop_buttons {margin-left: 10px; display:inline;}
+
 /* line 550, ../../../../sass/src/main.scss */
 div.worksheet_print_title { text-decoration: none; font-size: 24px; font-weight: bold; color: black; text-align: center; }
 /* line 556, ../../../../sass/src/main.scss */

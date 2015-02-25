@@ -87,6 +87,36 @@ INPUT:
         <span class="pingdown">({{ gettext('Someone else is viewing this worksheet') }})</span>
         {% endif %}
     </div>
+    
+    <div class="run_stop_buttons" >
+        <button name="button_run" title="Run" onclick="evaluate_all();" style="margin-left: 20px;">
+            <div style="float:left" class="ui-icon ui-icon-play"></div>
+            <div style="float:left">Run</div>
+        </button>
+        <button name="button_pause" title="interrupt" onclick="interrupt();">
+            <div style="float:left" class="ui-icon ui-icon-pause"></div>
+            <div style="float:left">Pause</div>
+        </button>
+    </div>
+    
+    <div class="input_dir">
+        <a id="input_directory" 
+           onClick="set_input_directory(); return false;"
+           title="{{ gettext('Click to set the input directory of this worksheet') }}"
+           value="{{ worksheet.input_dir() }}">
+            Input Directory: {{ worksheet.input_dir() }}
+        </a>
+    </div>
+    
+    <div class="next_worksheet">
+        <a id="next_worksheet" 
+           onClick="set_next_worksheet(); return false;"
+           title="{{ gettext('Click to set the next worksheet') }}"
+           value="{{ worksheet.next_worksheet() }}">
+            Next Worksheet: {{ worksheet.next_worksheet() }}
+        </a>
+    </div>
+    
     <div id="save-discard-buttons">
         {% if not worksheet.docbrowser() and not worksheet.is_published() %}
         <button name="button_save" title="{{ gettext('Save changes') }}" onClick="save_worksheet();">{{ gettext('Save') }}</button><button title="{{ gettext('Save changes and close window') }}" onClick="save_worksheet_and_close();" name="button_save">{{ gettext('Save & quit') }}</button><button title="{{ gettext('Discard changes to this worksheet') }}" onClick="worksheet_discard();">{{ gettext('Discard & quit') }}</button>
@@ -147,12 +177,9 @@ INPUT:
         <input id="3D_use_java", type="checkbox" title="{{ gettext('Use java for 3-D. Only applies to this running of worksheet.') }}"
                onchange="3D_use_java_check(this.checked);"
                class="worksheet" value="3D_use_java"/>&nbsp;{{ gettext('Use java for 3-D') }}
-        &nbsp;{{ gettext('Input Directory:') }}<input type="text" title="{{ gettext('Input Directory') }}"
-               onchange="input_dir_changed(this.value);"
-               class="worksheet" value={{worksheet.input_dir()}} />
-        &nbsp;{{ gettext('Next Worksheet:') }}<input type="text" title="{{ gettext('Next Worksheet') }}"
-               onchange="next_worksheet_changed(this.value);"
-               class="worksheet" value={{worksheet.next_worksheet()}} />
+        <input id="keep_live", type="checkbox" title="{{ gettext('Make this worksheet running automatically after quit the worksheet.') }}"
+               onchange="keep_live_check(this.checked);"
+               class="worksheet" value="keep_live" {% if worksheet.keep_live() %} checked {% endif %}/>&nbsp;{{ gettext('Auto Run') }}
          {% endif %}
     {% endif %} 
     </div>

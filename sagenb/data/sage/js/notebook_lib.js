@@ -63,6 +63,9 @@ var worksheet_filename = '';
 var worksheet_name = '';
 var user_name = '';
 
+var input_dir = $('#input_directory').attr('value');
+var next_worksheet = $('#next_worksheet').attr('value');
+
 // Ping the server periodically for worksheet updates.
 var server_ping_time = 10000;
 
@@ -1780,6 +1783,50 @@ function rename_worksheet() {
     });
 }
 
+function set_input_directory() {
+    input_dir = $('#input_directory').attr('value');
+    var callback = function (new_input_directory) {
+        var input_dir_label = $('#input_directory');
+        input_dir_label.attr('value', new_input_directory)
+        input_dir_label.html('Input Directory: '+new_input_directory);    
+        input_dir = new_input_directory
+        async_request(worksheet_command('input_dir/' + escape0(new_input_directory.replaceAll('/','|'))), restart_sage);
+    };
+    modal_prompt({
+        success: function (form, prompt) {
+            callback($(':text',form).prop('value'));
+        }
+    }, {
+        id: "set_input_dir_prompt",
+        title: "Set Input Directory",
+        message: 'Please enter a path for the input directory',
+        'default': input_dir,
+        submit: "Set"
+    });
+}
+
+function set_next_worksheet() {
+    
+    next_worksheet = $('#next_worksheet').attr('value');
+    var callback = function (new_next_worksheet) {
+        var next_worksheet_label = $('#next_worksheet');
+        next_worksheet_label.attr('value',new_next_worksheet);
+        next_worksheet_label.html('Next Worksheet: '+ new_next_worksheet);    
+        next_worksheet = new_next_worksheet
+        async_request(worksheet_command('next_worksheet/' + escape0(new_next_worksheet.replaceAll('/','|'))), restart_sage);
+    };
+    modal_prompt({
+        success: function (form, prompt) {
+            callback($(':text',form).prop('value'));
+        }
+    }, {
+        id: "set_next_worksheet_prompt",
+        title: "Set Next Worksheet",
+        message: 'Please enter a path for the next worksheet',
+        'default': next_worksheet,
+        submit: "Set"
+    });
+}
 
 function go_system_select(form, original_system) {
     /*
@@ -1825,6 +1872,12 @@ function live_3D_check(s) {
         s -- boolean; whether the pretty Live 3D box is now checked.
     */
     async_request(worksheet_command('live_3D/' + s));
+}
+
+
+function keep_live_check(s) {
+    
+    async_request(worksheet_command('keep_live/' + s));
 }
 
 function input_dir_changed(s) {

@@ -190,6 +190,14 @@ def worksheet_next_worksheet(worksheet, newworksheet):
     worksheet.set_next_worksheet(newworksheet.replace('|','/'))
     return 'success'
 
+@worksheet_command('keep_live/<enable>')
+def worksheet_keep_live(worksheet, enable):
+    if enable == 'true':
+        worksheet.set_keep_live(True)
+    else:
+        worksheet.set_keep_live(False)
+    return 'success'
+
 @worksheet_command('conf')
 def worksheet_conf(worksheet):
     return str(worksheet.conf())

@@ -224,6 +224,7 @@ class Worksheet(object):
         self.__next_worksheet = next_worksheet
         self.__icon_file = icon_file
         self.__status_text = ''
+        self.__keep_live = False
         # state sequence number, used for sync
         self.__state_number = 0
         self.__parent =''
@@ -363,6 +364,7 @@ class Worksheet(object):
              'next_worksheet': self.next_worksheet(),
              'icon_file': self.icon_file(),
              'status_text': self.status_text(),
+             'keep_live': self.keep_live(),
              'parent': self.parent(),
              'template': self.template(),
              # what other users think of this worksheet: list of
@@ -431,7 +433,7 @@ class Worksheet(object):
                     self.__filename = filename
                     self.__dir = os.path.join(notebook_worksheet_directory, str(value))
             elif key in ['system', 'owner', 'viewers', 'collaborators',
-                         'pretty_print', 'ratings', 'live_3D','input_dir','next_worksheet','icon_file','status_text','parent','template']:
+                         'pretty_print', 'ratings', 'live_3D','input_dir','next_worksheet','icon_file','status_text','keep_live','parent','template']:
                 # ugly
                 setattr(self, '_Worksheet__' + key, value)
             elif key == 'auto_publish':
@@ -1180,6 +1182,15 @@ class Worksheet(object):
         
     def set_status_text(self, status_text):
         self.__status_text = status_text
+        
+    def keep_live(self):
+        try:
+            return self.__keep_live
+        except AttributeError:
+            return False
+        
+    def set_keep_live(self, keep_live):
+        self.__keep_live = keep_live
 
     def parent(self):
         try:
@@ -3278,6 +3289,9 @@ _support_.init(None, globals())
 # socketio initialization
 try:
     from socketIO_client import SocketIO
+    import logging
+    logging.getLogger('requests').setLevel(logging.ERROR)
+    logging.basicConfig(level=logging.ERROR)
     SOCKET_IO=SocketIO('localhost', SERVER_PORT)
     def BACKEND_EXECUTE(cmd):
         try:
@@ -3802,7 +3816,8 @@ except (KeyError, IOError):
                 
     def enqueue_all_cells(self):
         for c in self.cell_list():
-            self.enqueue(c)
+            if c.is_compute_cell():
+                self.enqueue(c)
                 
     def next_id(self):
         try:
