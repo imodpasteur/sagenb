@@ -114,7 +114,9 @@ from tornado.ioloop import IOLoop
 wsgi_app = WSGIContainer(flask_app)
 http_server = HTTPServer(wsgi_app)
 http_server.listen(%(port)s)
+flask_app.run_keeper.start()
 IOLoop.instance().start()
+flask_app.run_keeper.stop()
 """
     def run_command(self, kw):
         """Run a tornado webserver."""
@@ -196,10 +198,12 @@ if %(secure)s:
 
 %(open_page)s
 try:
+    flask_app.run_keeper.start()
     flask_app.run(host=%(interface)r, port=%(port)s, threaded=True,
                   ssl_context=ssl_context, debug=False)
 finally:
     save_notebook(flask_base.notebook)
+    flask_app.run_keeper.stop()
     os.unlink(%(pidfile)r)
 """
 
@@ -236,9 +240,11 @@ logger.addHandler(logging.StreamHandler())
 
 %(open_page)s
 try:
+    flask_app.run_keeper.start()
     flask_app.socketio.run(flask_app, host=%(interface)r, port=%(port)s, use_reloader= False)
 finally:
     save_notebook(flask_base.notebook)
+    flask_app.run_keeper.stop()
     os.unlink(%(pidfile)r)
 """
 
@@ -287,6 +293,7 @@ if (platform.system()=='Linux'
 def save_notebook2(notebook):
     from twisted.internet.error import ReactorNotRunning
     save_notebook(notebook)
+    flask_app.run_keeper.stop()
 
 import signal
 from twisted.internet import reactor
@@ -298,6 +305,8 @@ def my_sigint(x, n):
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 signal.signal(signal.SIGINT, my_sigint)
+
+flask_app.run_keeper.start()
 
 from twisted.web import server
 from twisted.web.wsgi import WSGIResource

@@ -456,6 +456,22 @@ def create_app(path_to_notebook, *args, **kwds):
         print('setup socketio failed')
         print traceback.format_exc()
         
+    ######################
+    # Keep tasks running #
+    ######################
+    from sagenb.notebook.misc import Scheduler
+    def keep_everything_running():
+        print('.')
+        for w in notebook.get_all_worksheets():
+            if w.computing():
+                w.check_comp()
+                w.start_next_comp()
+            elif not w.compute_process_has_been_started() and w.option('keep_live', False):
+                print('Autorun worksheet: %s'%w.filename())
+                w.enqueue_all_cells()
+                
+    app.run_keeper = Scheduler(1.0, keep_everything_running)
+    
     ####################################
     # create Babel translation manager #
     ####################################

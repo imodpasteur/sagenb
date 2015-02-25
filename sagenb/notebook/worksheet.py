@@ -227,6 +227,7 @@ class Worksheet(object):
         # state sequence number, used for sync
         self.__state_number = 0
         self.__parent =''
+        self.__template = ''
 
         # Initialize the cell id counter.
         self.__next_id = 0
@@ -363,6 +364,7 @@ class Worksheet(object):
              'icon_file': self.icon_file(),
              'status_text': self.status_text(),
              'parent': self.parent(),
+             'template': self.template(),
              # what other users think of this worksheet: list of
              # triples
              #       (username, rating, comment)
@@ -429,7 +431,7 @@ class Worksheet(object):
                     self.__filename = filename
                     self.__dir = os.path.join(notebook_worksheet_directory, str(value))
             elif key in ['system', 'owner', 'viewers', 'collaborators',
-                         'pretty_print', 'ratings', 'live_3D','input_dir','next_worksheet','icon_file','status_text','parent']:
+                         'pretty_print', 'ratings', 'live_3D','input_dir','next_worksheet','icon_file','status_text','parent','template']:
                 # ugly
                 setattr(self, '_Worksheet__' + key, value)
             elif key == 'auto_publish':
@@ -779,8 +781,9 @@ class Worksheet(object):
         next_worksheet = self.notebook().get_worksheet_with_filename(self.next_worksheet())
         if next_worksheet:
             w = self.notebook().copy_worksheet(next_worksheet,username)
-            w.set_name(next_worksheet.name()+'('+os.path.basename(os.path.normpath(input_dir))+')('+w.filename()+')')
-            w.set_parent(next_worksheet.filename())
+            w.set_name(os.path.basename(os.path.normpath(input_dir))+'('+next_worksheet.name()+')')
+            w.set_parent(w.filename())
+            w.set_template(next_worksheet.filename())
             w.set_input_dir(input_dir)
             w.delete_cells_directory()
             w.delete_all_output(username)
@@ -1186,6 +1189,15 @@ class Worksheet(object):
         
     def set_parent(self, parent):
         self.__parent = parent
+
+    def template(self):
+        try:
+            return self.__template
+        except AttributeError:
+            return ''
+        
+    def set_template(self, template):
+        self.__template = template
         
     ##########################################################
     # input dir
@@ -3261,6 +3273,31 @@ SERVER_PORT = %r
 CURRENT_WORKSHEET = %r
 import sys; sys.path.append(DATA)
 _support_.init(None, globals())
+
+
+# socketio initialization
+try:
+    from socketIO_client import SocketIO
+    SOCKET_IO=SocketIO('localhost', SERVER_PORT)
+    def BACKEND_EXECUTE(cmd):
+        try:
+            SOCKET_IO.emit('execute', cmd)
+            #SOCKET_IO.wait(seconds=1)
+        except:
+            SOCKET_IO=SocketIO('localhost', SERVER_PORT)
+            try:
+                SOCKET_IO.emit('execute', cmd)
+            except:
+                print('failed to execute command!')
+    def CREATE_NEXT_WORKSHEET(input_path = ''):
+        cmd ='''
+print('create an instance of the next worksheet')
+cw = notebook.get_worksheet_with_filename('{current_worksheet}')
+nw = cw.create_next_worksheet('{input_path}')
+nw.enqueue_all_cells()'''.format(current_worksheet = CURRENT_WORKSHEET ,input_path = input_path)
+        BACKEND_EXECUTE(cmd)
+except:
+    print('WARNING: backend execution functions are not available')
 
 
 # The following is Sage-specific -- this immediately bombs out if sage isn't installed.
