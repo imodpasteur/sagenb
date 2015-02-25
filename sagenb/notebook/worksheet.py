@@ -226,6 +226,7 @@ class Worksheet(object):
         self.__status_text = ''
         # state sequence number, used for sync
         self.__state_number = 0
+        self.__parent =''
 
         # Initialize the cell id counter.
         self.__next_id = 0
@@ -361,6 +362,7 @@ class Worksheet(object):
              'next_worksheet': self.next_worksheet(),
              'icon_file': self.icon_file(),
              'status_text': self.status_text(),
+             'parent': self.parent(),
              # what other users think of this worksheet: list of
              # triples
              #       (username, rating, comment)
@@ -427,7 +429,7 @@ class Worksheet(object):
                     self.__filename = filename
                     self.__dir = os.path.join(notebook_worksheet_directory, str(value))
             elif key in ['system', 'owner', 'viewers', 'collaborators',
-                         'pretty_print', 'ratings', 'live_3D','input_dir','next_worksheet','icon_file','status_text']:
+                         'pretty_print', 'ratings', 'live_3D','input_dir','next_worksheet','icon_file','status_text','parent']:
                 # ugly
                 setattr(self, '_Worksheet__' + key, value)
             elif key == 'auto_publish':
@@ -778,6 +780,7 @@ class Worksheet(object):
         if next_worksheet:
             w = self.notebook().copy_worksheet(next_worksheet,username)
             w.set_name(next_worksheet.name()+'('+os.path.basename(os.path.normpath(input_dir))+')('+w.filename()+')')
+            w.set_parent(next_worksheet.filename())
             w.set_input_dir(input_dir)
             w.delete_cells_directory()
             w.delete_all_output(username)
@@ -1175,6 +1178,15 @@ class Worksheet(object):
     def set_status_text(self, status_text):
         self.__status_text = status_text
 
+    def parent(self):
+        try:
+            return self.__parent
+        except AttributeError:
+            return ''
+        
+    def set_parent(self, parent):
+        self.__parent = parent
+        
     ##########################################################
     # input dir
     ##########################################################

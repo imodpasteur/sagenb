@@ -143,6 +143,7 @@ INPUT:
         {% else %}
 
         {% for worksheet in worksheets %}
+        {% if worksheet.parent()=='' %}
         {% set name = worksheet.filename() %}
         <tr>
             <td class="entry">
@@ -327,6 +328,8 @@ INPUT:
             {% endif %}
             {% endif %}
             {% endfor %}
+        
+        {%endif%}
         {% endfor %}
         {% endif %}
     </tbody>
