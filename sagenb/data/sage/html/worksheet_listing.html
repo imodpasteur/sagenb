@@ -232,8 +232,7 @@ INPUT:
         </tr>
             {% set parentWorksheet = worksheet %}
             {% for worksheet in worksheets %}
-            {% if not parentWorksheet == worksheet %}
-            {% if parentWorksheet.data_directory() in worksheet.input_dir() %}
+            {% if parentWorksheet.filename() == worksheet.parent() %}
                 {% set name = worksheet.filename() %}
                 <tr bgcolor="#e7e9eb">
                     <td class="entry">
@@ -325,7 +324,6 @@ INPUT:
                         {{ worksheet.html_time_nice_edited(username) }}
                     </td>
                 </tr>
-            {% endif %}
             {% endif %}
             {% endfor %}
         

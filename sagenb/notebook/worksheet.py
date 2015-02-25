@@ -784,7 +784,7 @@ class Worksheet(object):
         if next_worksheet:
             w = self.notebook().copy_worksheet(next_worksheet,username)
             w.set_name(os.path.basename(os.path.normpath(input_dir))+'('+next_worksheet.name()+')')
-            w.set_parent(w.filename())
+            w.set_parent(self.filename())
             w.set_template(next_worksheet.filename())
             w.set_input_dir(input_dir)
             w.delete_cells_directory()
