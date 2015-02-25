@@ -783,7 +783,7 @@ class Worksheet(object):
         next_worksheet = self.notebook().get_worksheet_with_filename(self.next_worksheet())
         if next_worksheet:
             w = self.notebook().copy_worksheet(next_worksheet,username)
-            w.set_name(os.path.basename(os.path.normpath(input_dir))+'('+next_worksheet.name()+')')
+            w.set_name(os.path.basename(os.path.normpath(input_dir)))
             w.set_parent(self.filename())
             w.set_template(next_worksheet.filename())
             w.set_input_dir(input_dir)
