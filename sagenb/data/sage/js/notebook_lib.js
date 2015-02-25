@@ -1502,7 +1502,8 @@ function set_worksheet_list_checks() {
     for (i = 0; i < worksheet_filenames.length; i += 1) {
         id = worksheet_filenames[i].replace(/[^\-A-Za-z_0-9]/g, '-');
         X = get_element(id);
-        X.checked = C.checked;
+        if (X)
+            X.checked = C.checked;
     }
 }
 
@@ -1525,9 +1526,12 @@ function checked_worksheet_filenames() {
     for (i = 0; i < worksheet_filenames.length; i += 1) {
         id = worksheet_filenames[i].replace(/[^\-A-Za-z_0-9]/g, '-');
         X = get_element(id);
-        if (X.checked) {
-            checked_filenames.push(worksheet_filenames[i]);
-            X.checked = 0;
+        if(X)
+        {
+            if (X.checked) {
+                checked_filenames.push(worksheet_filenames[i]);
+                X.checked = 0;
+            }
         }
     }
     return encode_response(checked_filenames);
