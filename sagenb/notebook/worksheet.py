@@ -1215,7 +1215,7 @@ class Worksheet(object):
     ##########################################################
     def input_dir(self):
         """
-        Return the input directory of the worksheet
+        Return the input of the worksheet
 
         OUTPUT:
 
@@ -1238,7 +1238,7 @@ class Worksheet(object):
             return self.__input_dir
     def set_input_dir(self, inputpath=''):
         """
-        Set the input directory of the worksheet
+        Set the inputof the worksheet
 
         INPUT:
 
@@ -3277,7 +3277,7 @@ import sagenb.notebook.interact as _interact_ # for setting current cell id
 
 DATA = %r
 DIR = %r
-INPUT_DIRECTORY = %r
+INPUT = %r
 NEXT_WORKSHEET = %r
 ICON_FILE = %r
 SERVER_PORT = %r
