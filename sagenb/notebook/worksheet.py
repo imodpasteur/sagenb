@@ -3816,7 +3816,7 @@ except (KeyError, IOError):
                 
     def enqueue_all_cells(self):
         for c in self.cell_list():
-            if c.is_compute_cell():
+            if c.is_compute_cell() and not c.is_interactive_cell():
                 self.enqueue(c)
                 
     def next_id(self):
