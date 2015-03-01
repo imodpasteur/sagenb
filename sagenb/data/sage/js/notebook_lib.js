@@ -168,8 +168,9 @@ var modal_prompt_element =
     '<div class="modal-prompt" style="display: none;">' +
     '    <form>' +
     '        <div class="message"></div>' +
+    '        <div id="file_tree" style="max-height: 300px; overflow: scroll;"></div>' +
     '        <div class="field">' +
-    '            <input type="text" />' +
+    '            <input id="input_box" type="text" />' +
     '        </div>' +
     '        <div class="button-div">' +
     '            <button type="submit">OK</submit>' +
@@ -758,9 +759,12 @@ function modal_prompt(form_options, options, modal_options) {
     options = options || {};
     title = options.title || '';
     message = options.message || '';
+    fileTreeEnabled = options.fileTreeEnabled || false;
+    fileTreeRoot = options.fileTreeRoot || '/'
     default_value = options['default'] || '';
     submit_value = options.submit || 'OK';
     css = options.css || {};
+    worksheetListEnabled = options.worksheetListEnabled || false;
 
     overlay_close = options.overlay_close;
     if (typeof(options.overlay_close) === 'undefined') { 
@@ -791,6 +795,35 @@ function modal_prompt(form_options, options, modal_options) {
 
     new_prompt = $($.parseHTML(modal_prompt_element));
     $('body').append(new_prompt);
+    if(fileTreeEnabled)
+    {
+        new_prompt.find('#file_tree').fileTree(
+            {root: fileTreeRoot, 
+             script: "/filetree/sfiles",
+             multiFolder:false,
+             folderEvent:'dblclick', 
+             selectFolder: true,
+             expandEasing: 'easeOutBounce', 
+             collapseEasing: 'easeOutBounce',
+            }, function(file) {
+            new_prompt.find('#input_box').val(file)
+        });
+        new_prompt.find('#file_tree').hide();
+    }
+    if(worksheetListEnabled)
+    {
+        async_request(worksheet_command('worksheet_list'), function(status, response){
+            if(status=='success'){
+                new_prompt.find('#file_tree').html(response);
+                new_prompt.find('#file_tree').find('li').css('color','#362b99');
+                new_prompt.find('#file_tree').find('li').css( 'cursor', 'pointer' );
+                new_prompt.find('#file_tree').find('li').bind('click',function(){
+                    new_prompt.find('#input_box').val($(this).attr('rel'));
+                    
+                })
+            } 
+        });
+    }
     new_prompt.css(css);
 
     new_form = new_prompt.find('form');
@@ -1793,7 +1826,7 @@ function set_input_directory() {
         var input_dir_label = $('#input_directory');
         input_dir_label.attr('value', new_input_directory)
         input_dir_label.html('Input: '+new_input_directory);    
-        input_dir = new_input_directory
+        input_dir = new_input_directory;
         async_request(worksheet_command('input_dir/' + escape0(new_input_directory.replaceAll('/','|'))), restart_sage);
     };
     modal_prompt({
@@ -1803,10 +1836,15 @@ function set_input_directory() {
     }, {
         id: "set_input_dir_prompt",
         title: "Set Input",
-        message: 'Please enter a path for the input',
+        fileTreeEnabled:true,
+        fileTreeRoot: $('#input_directory').attr('file_tree_root') || '/',
+        message: 'Please enter a string or <a onClick="$('+"'#file_tree'"+').toggle();" href="#">select a path</a> as input',
         'default': input_dir,
         submit: "Set"
-    });
+    },{
+        position:'top'
+      }
+    );
 }
 
 function set_next_worksheet() {
@@ -1826,10 +1864,14 @@ function set_next_worksheet() {
     }, {
         id: "set_next_worksheet_prompt",
         title: "Set Next Worksheet",
-        message: 'Please enter a path for the next worksheet',
+        message: 'Please select a worksheet as the next worksheet',
+        worksheetListEnabled:true,
         'default': next_worksheet,
         submit: "Set"
-    });
+    },{
+        position:'top'
+      }
+    );
 }
 
 function go_system_select(form, original_system) {

@@ -70,7 +70,7 @@ def home(username):
 @login_required
 def bare_home():
     return redirect(url_for('home', username=g.username))
-
+    
 ###########
 # Folders #
 ###########

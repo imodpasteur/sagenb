@@ -202,6 +202,15 @@ def worksheet_keep_live(worksheet, enable):
 def worksheet_conf(worksheet):
     return str(worksheet.conf())
 
+@worksheet_command('worksheet_list')
+def worksheet_worksheet_list(worksheet):
+    ws = worksheet.notebook().worksheet_list_for_user(g.username)
+    r = '<ul id="worksheet_list_all_templates">\n'
+    for w in ws:
+        if w.template()=='':
+            r +='\t<li class="worksheet_link" rel="%s"> %s </li>\n'%(w.filename(), w.name())
+    r+='</ul>' 
+    return r
 
 ########################################################
 # Save a worksheet

@@ -27,6 +27,8 @@ defaults = {'word_wrap_cols':72,
             'server_pool':[],
 
             'system':'sage',
+            
+            'default_file_tree_root':'~',
 
             'pretty_print':False,
 
@@ -137,7 +139,13 @@ defaults_descriptions = {
         GROUP : G_SERVER,
         TYPE : T_LIST,
         },
-
+    
+    'default_file_tree_root': {
+        DESC : _('Default File Browser Path'),
+        GROUP : G_SERVER,
+        TYPE : T_STRING,
+        },
+    
     'word_wrap_cols': {
         DESC : _('Number of word-wrap columns'),
         GROUP : G_APPEARANCE,

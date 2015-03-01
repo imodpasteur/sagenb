@@ -22,10 +22,12 @@ INPUT:
 
 <!-- jQuery plugins - color pickers, shift-click, AJAX forms, IE fixes, notifications -->
 <link rel="stylesheet" href="/javascript/jquery/plugins/farbtastic/farbtastic.css" type="text/css" />
+<link rel="stylesheet" href="/javascript/jquery/plugins/jqueryFileTree/jqueryFileTree.css" type="text/css" />
 <script type="text/javascript" src="/javascript/jquery/plugins/farbtastic/farbtastic.min.js"></script>
 <script type="text/javascript" src="/javascript/jquery/plugins/extendedclick/jquery.event.extendedclick.min.js"></script>
 <script type="text/javascript" src="/javascript/jquery/plugins/form/jquery.form.min.js"></script>
 <script type="text/javascript" src="/javascript/jquery/plugins/jquery.bgiframe.min.js"></script>
+<script type="text/javascript" src="/javascript/jquery/plugins/jqueryFileTree/jqueryFileTree.js"></script>
 <link rel="stylesheet" href="/javascript/jquery/plugins/jpicker/css/jPicker-1.1.6.min.css" type="text/css" />
 <script type="text/javascript" src="/javascript/jquery/plugins/jpicker/jpicker-1.1.6.min.js"></script>
 <link rel="stylesheet" media="screen" type="text/css" href="/javascript/jquery/plugins/colorpicker/css/colorpicker.css" />
@@ -99,11 +101,13 @@ INPUT:
         </button>
     </div>
     
-    <div class="input_dir">
+    <div class="input_dir" >
         <a id="input_directory" 
            onClick="set_input_directory(); return false;"
            title="{{ gettext('Click to set the input of this worksheet') }}"
-           value="{{ worksheet.input_dir() }}">
+           value="{{ worksheet.input_dir() }}"
+           file_tree_root="{{worksheet.notebook().file_tree_root()}}"
+           >
             Input: {{ worksheet.input_dir() }}
         </a>
     </div>

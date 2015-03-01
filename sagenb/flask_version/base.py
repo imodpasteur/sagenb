@@ -515,6 +515,10 @@ def create_app(path_to_notebook, *args, **kwds):
 
     from settings import settings
     app.register_blueprint(settings)
+    
+    import flask_filetree
+    ft, app = flask_filetree.make_blueprint(app=app)
+    app.register_blueprint(ft, url_prefix='/filetree')
 
     # Handles all uncaught exceptions by sending an e-mail to the
     # administrator(s) and displaying an error page.

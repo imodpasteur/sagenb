@@ -722,7 +722,12 @@ class Notebook(object):
         maxlen = self.user_manager().user_conf(username)['max_history_length']
         while len(history) > maxlen:
             del history[0]
+        
+    def file_tree_root(self):
+        return self.conf()['default_file_tree_root']
 
+    def set_file_tree_root(self, root):
+        self.conf()['default_file_tree_root'] = root
 
     ##########################################################
     # Importing and exporting worksheets to files
