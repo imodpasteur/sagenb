@@ -1792,7 +1792,7 @@ function set_input_directory() {
     var callback = function (new_input_directory) {
         var input_dir_label = $('#input_directory');
         input_dir_label.attr('value', new_input_directory)
-        input_dir_label.html('Input Directory: '+new_input_directory);    
+        input_dir_label.html('Input: '+new_input_directory);    
         input_dir = new_input_directory
         async_request(worksheet_command('input_dir/' + escape0(new_input_directory.replaceAll('/','|'))), restart_sage);
     };
@@ -1802,8 +1802,8 @@ function set_input_directory() {
         }
     }, {
         id: "set_input_dir_prompt",
-        title: "Set Input Directory",
-        message: 'Please enter a path for the input directory',
+        title: "Set Input",
+        message: 'Please enter a path for the input',
         'default': input_dir,
         submit: "Set"
     });
@@ -1886,10 +1886,10 @@ function keep_live_check(s) {
 
 function input_dir_changed(s) {
     /*
-    Send a message back to the server to change input directory.
+    Send a message back to the server to change input.
 
     INPUT:
-        s -- string; the path of the input directory.
+        s -- string; the path of the input.
     */
     async_request(worksheet_command('input_dir/' + escape0(s.replaceAll('/','|'))), restart_sage);
 }
