@@ -812,14 +812,19 @@ function modal_prompt(form_options, options, modal_options) {
     }
     if(worksheetListEnabled)
     {
+        
         async_request(worksheet_command('worksheet_list'), function(status, response){
             if(status=='success'){
-                new_prompt.find('#file_tree').html(response);
-                new_prompt.find('#file_tree').find('li').css('color','#362b99');
-                new_prompt.find('#file_tree').find('li').css( 'cursor', 'pointer' );
-                new_prompt.find('#file_tree').find('li').bind('click',function(){
-                    new_prompt.find('#input_box').val($(this).attr('rel'));
-                    
+                tree = new_prompt.find('#file_tree');
+                
+                tree.html(response);
+                tree.find('li').css('color','#362b99');
+                tree.find('li').css( 'cursor', 'pointer' );
+                tree.find('li').bind('click',function(){
+                    ip = new_prompt.find('#input_box');
+                    ip.attr('rel', $(this).attr('rel'));
+                    ip.val($(this).attr('rel'));
+                    ip.attr('label', $(this).text());
                 })
             } 
         });
@@ -1850,16 +1855,18 @@ function set_input_directory() {
 function set_next_worksheet() {
     
     next_worksheet = $('#next_worksheet').attr('value');
-    var callback = function (new_next_worksheet) {
+    var callback = function (new_next_worksheet, label) {
+        if(typeof label ==="undefined")
+            label = new_next_worksheet;
         var next_worksheet_label = $('#next_worksheet');
         next_worksheet_label.attr('value',new_next_worksheet);
-        next_worksheet_label.html('Next Worksheet: '+ new_next_worksheet);    
+        next_worksheet_label.html('Next Worksheet: '+ label);    
         next_worksheet = new_next_worksheet
         async_request(worksheet_command('next_worksheet/' + escape0(new_next_worksheet.replaceAll('/','|'))), restart_sage);
     };
     modal_prompt({
         success: function (form, prompt) {
-            callback($(':text',form).prop('value'));
+            callback($(':text',form).prop('value'), $(':text',form).attr('label'));
         }
     }, {
         id: "set_next_worksheet_prompt",

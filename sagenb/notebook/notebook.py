@@ -1502,6 +1502,11 @@ class Notebook(object):
             return self.__worksheets[filename]
         except KeyError:
             raise KeyError, "No worksheet with filename '%s'"%filename
+    def get_worksheet_name_with_filename(self, filename):
+        try:
+            return self.get_worksheet_with_filename(filename).name() 
+        except:
+            return filename+('(not exist!)')
 
     ###########################################################
     # Saving the whole notebook

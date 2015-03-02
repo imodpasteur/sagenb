@@ -117,7 +117,7 @@ INPUT:
            onClick="set_next_worksheet(); return false;"
            title="{{ gettext('Click to set the next worksheet') }}"
            value="{{ worksheet.next_worksheet() }}">
-            Next Worksheet: {{ worksheet.next_worksheet() }}
+            Next Worksheet: {{ worksheet.notebook().get_worksheet_name_with_filename(worksheet.next_worksheet())}}
         </a>
     </div>
     
