@@ -182,7 +182,7 @@ INPUT:
                 <a title="{{ worksheet.name() | escape }}" id="name-{{ name|css_escape }}" class="{% if worksheet.computing() %} {{'runningworksheetname'}} {% else %} {{'worksheetname'}} {% endif %}" href="/home/{{ name }}/">
                     {% if worksheet.compute_process_has_been_started() %}{{ gettext('*') }}{% endif %}
                     {% if worksheet.check_comp() and worksheet.start_next_comp() %}{% endif %}
-                    {% if worksheet.computing() %}({{ gettext('computing') }} {{worksheet.status_text()}}){% endif %}
+                    {% if worksheet.computing() %} <img src="/javascript/sage/images/computing-1.gif" alt="Computing" style="width:14px;height:14px"> {{worksheet.status_text()}}{% endif %}
                     {{ worksheet.truncated_name(50) | escape}}
                 </a>
                 {% if not pub and worksheet.is_published() %}(Published){% endif %}
@@ -274,7 +274,7 @@ INPUT:
                             <a title="{{ worksheet.name() | escape }}" id="name-{{ name|css_escape }}" class="{{'subworksheetname'}}" href="/home/{{ name }}/">
                                 {% if worksheet.compute_process_has_been_started() %}{{ gettext('*') }}{% endif %}
                                 {% if worksheet.check_comp() and worksheet.start_next_comp() %}{% endif %}
-                                {% if worksheet.computing() %} ({{ gettext('computing') }} {{worksheet.status_text()}}) {% endif %}
+                                {% if worksheet.computing() %} <img src="/javascript/sage/images/computing-2.gif" alt="Computing" style="width:12px;height:12px">  {{worksheet.status_text()}} {% endif %}
                                 {{ worksheet.truncated_name(50) | escape}}
                             </a>
 
