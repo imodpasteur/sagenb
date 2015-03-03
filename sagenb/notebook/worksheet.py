@@ -3303,11 +3303,13 @@ try:
                 SOCKET_IO.emit('execute', cmd)
             except:
                 print('failed to execute command!')
-    def CREATE_NEXT_WORKSHEET(input_path = ''):
+    def CREATE_NEXT_WORKSHEET(input_path = '',name = ''):
         cmd ='''
 print('create an instance of the next worksheet')
 cw = notebook.get_worksheet_with_filename('{current_worksheet}')
 nw = cw.create_next_worksheet('{input_path}')
+if name != '':
+    nw.set_name(name)
 nw.enqueue_all_cells()'''.format(current_worksheet = CURRENT_WORKSHEET ,input_path = input_path)
         BACKEND_EXECUTE(cmd)
 except:
