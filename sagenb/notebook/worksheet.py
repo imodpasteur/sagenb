@@ -3308,9 +3308,10 @@ try:
 print('create an instance of the next worksheet')
 cw = notebook.get_worksheet_with_filename('{current_worksheet}')
 nw = cw.create_next_worksheet('{input_path}')
+name = '{new_worksheet_name}'
 if name != '':
     nw.set_name(name)
-nw.enqueue_all_cells()'''.format(current_worksheet = CURRENT_WORKSHEET ,input_path = input_path)
+nw.enqueue_all_cells()'''.format(new_worksheet_name = name, current_worksheet = CURRENT_WORKSHEET ,input_path = input_path)
         BACKEND_EXECUTE(cmd)
 except:
     print('WARNING: backend execution functions are not available')
