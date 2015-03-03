@@ -1,67 +1,64 @@
-{% extends "html/base_authenticated.html" %}
-{#
-INPUT:
-- pub -- a boolean stating whether to show in public mode.
-- typ -- a string stating what kind of worksheets this listing shows
-- worksheets -- list of Worksheet objects
-- readonly -- a boolean stating whether the user is read only
-#}
-{% if pub %}
-{% set worksheet_heading=gettext('Published Worksheets') %}
-{% elif typ == 'trash' %}
-{% set worksheet_heading=gettext('Deleted Worksheets') %}
-{% elif typ == 'active' %}
-{% set worksheet_heading=gettext('Active Worksheets') %}
-{% else %}
-{% set worksheet_heading=gettext('Archived Worksheets') %}
-{% endif %}  
-
-{% block title %}
-{{ worksheet_heading }}
-{% endblock %}
-
-{% block page_id %}worksheet-listing-page{% endblock %}
-{% block body_classes %}{% if pub %}public{% endif %}{% endblock %}
-
-{% block javascript %}
-{% if not pub %}
+{% extends "html/base_authenticated.html" %} {# INPUT: - pub -- a boolean stating whether to show in public mode. - typ -- a string stating what kind of worksheets this listing shows - worksheets -- list of Worksheet objects - readonly -- a boolean stating whether the user is read only #} {% if pub %} {% set worksheet_heading=gettext('Published Worksheets') %} {% elif typ == 'trash' %} {% set worksheet_heading=gettext('Deleted Worksheets') %} {% elif typ == 'active' %} {% set worksheet_heading=gettext('Active Worksheets') %} {% else %} {% set worksheet_heading=gettext('Archived Worksheets') %} {% endif %} {% block title %} {{ worksheet_heading }} {% endblock %} {% block page_id %}worksheet-listing-page{% endblock %} {% block body_classes %}{% if pub %}public{% endif %}{% endblock %} {% block javascript %} {% if not pub %}
 <link rel="stylesheet" href="/javascript/jqueryui/css/sage/jquery-ui-1.10.4.custom.css" />
 <script type="text/javascript" src="/javascript/jqueryui/js/jquery-ui-1.10.4.custom.min.js"></script>
 <script type="text/javascript" src="/javascript/jquery/plugins/form/jquery.form.min.js"></script>
 <script type="text/javascript" src="/javascript/jquery/plugins/jquery.bgiframe.min.js"></script>
+
+<script type="text/javascript" src="/javascript/jquery/plugins/fancyBox/lib/jquery.mousewheel-3.0.6.pack.js"></script>
+<link rel="stylesheet" href="/javascript/jquery/plugins/fancyBox/source/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen" />
+<script type="text/javascript" src="/javascript/jquery/plugins/fancyBox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+<link rel="stylesheet" href="/javascript/jquery/plugins/fancyBox/source/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen" />
+<script type="text/javascript" src="/javascript/jquery/plugins/fancyBox/source/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="/javascript/jquery/plugins/fancyBox/source/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="/javascript/jquery/plugins/fancyBox/source/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen" />
+<script type="text/javascript" src="/javascript/jquery/plugins/fancyBox/source/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
 <script type="text/javascript">
-    var worksheet_filenames = {{ worksheet_filenames|tojson|safe }}; 
+    $(document).ready(function () {
+        $(".fancybox")
+            .attr('rel', 'gallery')
+            .fancybox({
+                helpers: {
+                    thumbs: {
+                        width: 40,
+                        height: 40,
+                        source: function (current) {
+                            return $(current.element).data('thumbnail');
+                        }
+                    }
+                }
+            });
+    });
+</script>
+<script type="text/javascript">
+    var worksheet_filenames = {
+        {
+            worksheet_filenames | tojson | safe
+        }
+    };
 </script>
 <script type="text/javascript" src="/javascript/sage/js/notebook_lib.js"></script>
 <script type="text/javascript" src="/javascript/dynamic/notebook_dynamic.js"></script>
 <script type="text/javascript">
-    setTimeout("self.location.reload(true);",30000);
+    setTimeout("self.location.reload(true);", 30000);
 </script>
 {% else %}
 <script type="text/javascript" src="/javascript/sage/js/ws_list.js"></script>
-{% endif %}
-{% endblock %}
-
-
-{% block main %}
-{% if readonly is defined and readonly %}
-<h1>{{ gettext('Account is read only.  You may download or delete worksheets or data.') }}</h1>
-{% endif %}
+{% endif %} {% endblock %} {% block main %} {% if readonly is defined and readonly %}
+<h1>{{ gettext('Account is read only.  You may download or delete worksheets or data.') }}</h1> {% endif %}
 <div id="user-main-controls" class="user-controls">
     {% if pub is not defined or not pub %}
     <a href="/new_worksheet" target="_blank">{{ gettext('New Worksheet') }}</a>
     <a href="/upload">{{ gettext('Upload') }}</a>
-    <a href="/download_worksheets.zip">{{ gettext('Download All Active') }}</a>
-    {% endif %}
+    <a href="/download_worksheets.zip">{{ gettext('Download All Active') }}</a> {% endif %}
 
     <div id="search-area">
         <form action="." method="GET">
             <input type="hidden" value="{{ typ if not pub else 'pub' }}" name="typ" />
-            <input id="search-worksheets" size="20" value="{{ search if search else "" }}" name="search" />
+            <input id="search-worksheets" size="20" value="{{ search if search else " " }}" name="search" />
             <button class="add_new_worksheet_menu" id="search-worksheets-button" type="submit">{{ gettext('Search Worksheets') }}</button>
         </form>
     </div>
-</div>       
+</div>
 <div id="worksheet-list-controls" class="controls">
     {% if not pub %}
     <div class="action-buttons">
@@ -69,9 +66,7 @@ INPUT:
         <button onClick="make_active_button();" title="{{ gettext('Unarchive selected worksheets so it appears in the default worksheet list') }}">{{ gettext('Unarchive') }}</button>
         {% else %}
         <button onClick="archive_button();" title="{{ gettext('Archive selected worksheets so they do not appear in the default worksheet list') }}">{{ gettext('Archive') }}</button>
-        {% endif %}
-
-        {% if typ != 'trash' %}
+        {% endif %} {% if typ != 'trash' %}
         <button onClick="delete_button();" title="{{ gettext('Move the selected worksheets to the trash') }}">{{ gettext('Delete') }}</button>
         {% else %}
         <button onClick="make_active_button();" title="{{ gettext('Move the selected worksheets out of the trash') }}">{{ gettext('Undelete') }}</button>
@@ -84,9 +79,7 @@ INPUT:
         {{ gettext('Current Folder') }}:
         <a class="{{ 'bold' if typ == 'active' else '' }}usercontrol" href=".">{{ gettext('Active') }}</a>
         <a class="{{ 'bold' if typ == 'archive' else '' }}usercontrol" href=".?typ=archive">{{ gettext('Archived') }}</a>
-        <a class="{{ 'bold' if typ == 'trash' else '' }}usercontrol" href=".?typ=trash">{{ gettext('Trash') }}</a>
-
-        {% if typ == 'trash' %}
+        <a class="{{ 'bold' if typ == 'trash' else '' }}usercontrol" href=".?typ=trash">{{ gettext('Trash') }}</a> {% if typ == 'trash' %}
         <form method="POST" action="/emptytrash" id="empty-trash-form">
             <a class="boldusercontrol" onClick="empty_trash(this); return false" href="#">({{ gettext('Empty Trash') }})</a>
         </form>
@@ -103,7 +96,8 @@ INPUT:
                 <input id="controlbox" onClick="set_worksheet_list_checks();" class="entry" type="checkbox" />
             </td>
             {% else %}
-            <td><a class="listcontrol" href=".?sort=rating">{{ gettext('Rating') }}</a></td>
+            <td><a class="listcontrol" href=".?sort=rating">{{ gettext('Rating') }}</a>
+            </td>
             {% endif %}
 
             <td>
@@ -111,7 +105,12 @@ INPUT:
                     {{ worksheet_heading }}
                 </a>
             </td>
-            
+            <td>
+                <a class="listcontrol">
+                    Result
+                </a>
+            </td>
+
             <td>
                 <a class="listcontrol" href=".?typ={{ typ }}&sort=owner{{ '' if sort != 'owner' or reverse else '&reverse=True' }}">
                     {{ gettext('Owner') }} {{ '' if pub else ' / '+gettext('Collaborators') }}
@@ -126,8 +125,7 @@ INPUT:
         </tr>
     </thead>
     <tbody>
-        {% if not worksheets %}
-        {% if pub %}
+        {% if not worksheets %} {% if pub %}
         <tr>
             <td colspan="5">
                 {{ gettext('There are no published worksheets.') }}
@@ -139,42 +137,32 @@ INPUT:
                 {{ gettext('Welcome to Sage! You can <a href="/new_worksheet">create a new worksheet</a>, view <a href="/pub/">published worksheets</a>, or read the <a href="/help" target="_new">documentation</a>.') }}
             </td>
         </tr>
-        {% endif %}
-        {% else %}
-
-        {% for worksheet in worksheets %}
-        {% if worksheet.parent()=='' %}
-        {% set name = worksheet.filename() %}
+        {% endif %} {% else %} {% for worksheet in worksheets %} {% if worksheet.parent()=='' %} {% set name = worksheet.filename() %}
         <tr>
             <td class="entry">
                 {% if pub %}
-                
+
                 <a class="worksheet_edit" href="/home/{{ name }}/rating_info">
                     {% if worksheet.rating() < 0 %}
                     ----
                     {% else %}
                     {{ worksheet.rating() }}
                     {% endif %}
-                </a>
-                
-                {% else %}
-                
-                <input type="checkbox" unchecked id="{{ name|css_escape }}" />
-                {# I'm removing this select since it is a massive performance killer and these 
-                serve no real purpose at all.  Plus google docs got rid of the analogous menu.
+                </a> {% else %}
+
+                <input type="checkbox" unchecked id="{{ name|css_escape }}" /> {# I'm removing this select since it is a massive performance killer and these serve no real purpose at all. Plus google docs got rid of the analogous menu.
                 <select onchange="go_option(this);" class="worksheet_edit">
                     <option value="" title="File options" selected>File</option>
                     <option value="list_rename_worksheet('{{ name }}','{{ worksheet.name() }}');" title="Change the name of this worksheet.">
                         Rename...
-                    </option>            
+                    </option>
                     <option value="list_edit_worksheet('{{ name }}');" title="Open this worksheet and edit it">Edit</option>
                     <option value="list_copy_worksheet('{{ name }}');" title="Copy this worksheet">Copy Worksheet</option>
                     <option value="list_share_worksheet('{{ name }}');" title="Share this worksheet with others">Collaborate</option>
                     <option value="list_publish_worksheet('{{ name }}');" title="Publish this worksheet on the internet">Publish</option>
                     <option value="list_revisions_of_worksheet('{{ name }}');" title="See all revisions of this worksheet">Revisions</option>
                 </select>
-                #}      
-                {% endif %}
+                #} {% endif %}
             </td>
 
             <td class="worksheet_link">
@@ -183,153 +171,85 @@ INPUT:
                     {% if worksheet.check_comp() and worksheet.start_next_comp() %}{% endif %}
                     {% if worksheet.computing() %} <img src="/javascript/sage/images/computing-1.gif" alt="Computing" style="width:14px;height:14px"> {{worksheet.status_text()}}{% endif %}
                     {{ worksheet.truncated_name(50) | escape}}
-                </a>
-                {% if not pub and worksheet.is_published() %}(Published){% endif %}
+                </a> {% if not pub and worksheet.is_published() %}(Published){% endif %}
+            </td>
+            <td class="owner_collab">
+                {% if worksheet.icon_file() != '' %}
+                <a class="fancybox" data-thumbnail="/home/{{ name }}/data/{{ worksheet.thumbnail() }}" href="/home/{{ name }}/data/{{ worksheet.icon_file() }}">show</a> {% endif %}
             </td>
             <td class="owner_collab">
 
-                {% if not pub %}
-                {{ worksheet.owner() }}
-                {% else %}
-                {{worksheet.worksheet_that_was_published().owner()}}
-                {% endif %}
-                
-                {% if not pub and typ != 'trash' %}
-
-                {% set shared = False %}
-
-                {% if worksheet.collaborator_names() %}
-                / {{ worksheet.collaborator_names(5) }}
-                {% set shared = True %}
-                {% endif %}
-
-                {% if worksheet.viewer_names() %}
-                / {{ worksheet.viewer_names(5) }}
-                {% set shared = True %}
-                {% endif %}
-
-                {% if (worksheet.owner() != username) or username == 'admin' %}
-                {% set shared = False %}
-                {% endif %}
-                
-                {% if shared %}
-                <a class="share" href="/home/{{ worksheet.filename() }}/share">{{ gettext('Add or Delete') }}</a>
-                {% else %}
-                <a class="share" href="/home/{{ worksheet.filename() }}/share">{{ gettext('Share now') }}</a>
-                {% endif %}
-
-                {% if worksheet.has_published_version() %}
+                {% if not pub %} {{ worksheet.owner() }} {% else %} {{worksheet.worksheet_that_was_published().owner()}} {% endif %} {% if not pub and typ != 'trash' %} {% set shared = False %} {% if worksheet.collaborator_names() %} / {{ worksheet.collaborator_names(5) }} {% set shared = True %} {% endif %} {% if worksheet.viewer_names() %} / {{ worksheet.viewer_names(5) }} {% set shared = True %} {% endif %} {% if (worksheet.owner() != username) or username == 'admin' %} {% set shared = False %} {% endif %} {% if shared %}
+                <a class="share" href="/home/{{ worksheet.filename() }}/share">{{ gettext('Add or Delete') }}</a> {% else %}
+                <a class="share" href="/home/{{ worksheet.filename() }}/share">{{ gettext('Share now') }}</a> {% endif %} {% if worksheet.has_published_version() %}
                 <a href="/home/{{ worksheet.published_version().filename() }}">
                     ({{ gettext('published') }})
-                </a>
-                {% endif %}
-                
-                {% endif %}
+                </a> {% endif %} {% endif %}
             </td>
             <td>
                 {{ worksheet.html_time_nice_edited(username) }}
             </td>
         </tr>
-            {% set parentWorksheet = worksheet %}
-            {% for worksheet in worksheets %}
-            {% if parentWorksheet.filename() == worksheet.parent() %}
-                {% set name = worksheet.filename() %}
-                <tr bgcolor="#e7e9eb">
-                    <td class="entry">
-                        <li class="subworksheet">
-                            {% if pub %}
+        {% set parentWorksheet = worksheet %} {% for worksheet in worksheets %} {% if parentWorksheet.filename() == worksheet.parent() %} {% set name = worksheet.filename() %}
+        <tr bgcolor="#e7e9eb">
+            <td class="entry">
+                <li class="subworksheet">
+                    {% if pub %}
 
-                            <a class="worksheet_edit" href="/home/{{ name }}/rating_info">
+                    <a class="worksheet_edit" href="/home/{{ name }}/rating_info">
                                 {% if worksheet.rating() < 0 %}
                                 ----
                                 {% else %}
                                 {{ worksheet.rating() }}
                                 {% endif %}
-                            </a>
+                            </a> {% else %}
 
-                            {% else %}
+                    <input type="checkbox" unchecked id="{{ name|css_escape }}" /> {# I'm removing this select since it is a massive performance killer and these serve no real purpose at all. Plus google docs got rid of the analogous menu.
+                    <select onchange="go_option(this);" class="worksheet_edit">
+                        <option value="" title="File options" selected>File</option>
+                        <option value="list_rename_worksheet('{{ name }}','{{ worksheet.name() }}');" title="Change the name of this worksheet.">
+                            Rename...
+                        </option>
+                        <option value="list_edit_worksheet('{{ name }}');" title="Open this worksheet and edit it">Edit</option>
+                        <option value="list_copy_worksheet('{{ name }}');" title="Copy this worksheet">Copy Worksheet</option>
+                        <option value="list_share_worksheet('{{ name }}');" title="Share this worksheet with others">Collaborate</option>
+                        <option value="list_publish_worksheet('{{ name }}');" title="Publish this worksheet on the internet">Publish</option>
+                        <option value="list_revisions_of_worksheet('{{ name }}');" title="See all revisions of this worksheet">Revisions</option>
+                    </select>
+                    #} {% endif %}
+                </li>
+            </td>
 
-                            <input type="checkbox" unchecked id="{{ name|css_escape }}" />
-                            {# I'm removing this select since it is a massive performance killer and these 
-                            serve no real purpose at all.  Plus google docs got rid of the analogous menu.
-                            <select onchange="go_option(this);" class="worksheet_edit">
-                                <option value="" title="File options" selected>File</option>
-                                <option value="list_rename_worksheet('{{ name }}','{{ worksheet.name() }}');" title="Change the name of this worksheet.">
-                                    Rename...
-                                </option>            
-                                <option value="list_edit_worksheet('{{ name }}');" title="Open this worksheet and edit it">Edit</option>
-                                <option value="list_copy_worksheet('{{ name }}');" title="Copy this worksheet">Copy Worksheet</option>
-                                <option value="list_share_worksheet('{{ name }}');" title="Share this worksheet with others">Collaborate</option>
-                                <option value="list_publish_worksheet('{{ name }}');" title="Publish this worksheet on the internet">Publish</option>
-                                <option value="list_revisions_of_worksheet('{{ name }}');" title="See all revisions of this worksheet">Revisions</option>
-                            </select>
-                            #}      
-                            {% endif %}
-                        </li>
-                    </td>
-
-                    <td class="worksheet_link">
-                        <li class="subworksheet">
-                            <a title="{{ worksheet.name() | escape }}" id="name-{{ name|css_escape }}" class="{{'subworksheetname'}}" href="/home/{{ name }}/">
+            <td class="worksheet_link">
+                <li class="subworksheet">
+                    <a title="{{ worksheet.name() | escape }}" id="name-{{ name|css_escape }}" class="{{'subworksheetname'}}" href="/home/{{ name }}/">
                                 {% if worksheet.compute_process_has_been_started() %}{{ gettext('*') }}{% endif %}
                                 {% if worksheet.check_comp() and worksheet.start_next_comp() %}{% endif %}
                                 {% if worksheet.computing() %} <img src="/javascript/sage/images/computing-2.gif" alt="Computing" style="width:12px;height:12px">  {{worksheet.status_text()}} {% endif %}
                                 {{ worksheet.truncated_name(50) | escape}}
-                            </a>
+                            </a> {% if not pub and worksheet.is_published() %}(Published){% endif %}
+                </li>
+            </td>
 
-                            {% if not pub and worksheet.is_published() %}(Published){% endif %}
-                        </li>
-                    </td>
-                    <td class="owner_collab">
+            <td class="owner_collab">
+                {% if worksheet.icon_file() != '' %}
+                <a class="fancybox" data-thumbnail="/home/{{ name }}/data/{{ worksheet.thumbnail() }}" href="/home/{{ name }}/data/{{ worksheet.icon_file() }}">show</a> {% endif %}
+            </td>
 
-                        {% if not pub %}
-                        {{ worksheet.owner() }}
-                        {% else %}
-                        {{worksheet.worksheet_that_was_published().owner()}}
-                        {% endif %}
+            <td class="owner_collab">
 
-                        {% if not pub and typ != 'trash' %}
-
-                        {% set shared = False %}
-
-                        {% if worksheet.collaborator_names() %}
-                        / {{ worksheet.collaborator_names(5) }}
-                        {% set shared = True %}
-                        {% endif %}
-
-                        {% if worksheet.viewer_names() %}
-                        / {{ worksheet.viewer_names(5) }}
-                        {% set shared = True %}
-                        {% endif %}
-
-                        {% if (worksheet.owner() != username) or username == 'admin' %}
-                        {% set shared = False %}
-                        {% endif %}
-
-                        {% if shared %}
-                        <a class="share" href="/home/{{ worksheet.filename() }}/share">{{ gettext('Add or Delete') }}</a>
-                        {% else %}
-                        <a class="share" href="/home/{{ worksheet.filename() }}/share">{{ gettext('Share now') }}</a>
-                        {% endif %}
-
-                        {% if worksheet.has_published_version() %}
-                        <a href="/home/{{ worksheet.published_version().filename() }}">
+                {% if not pub %} {{ worksheet.owner() }} {% else %} {{worksheet.worksheet_that_was_published().owner()}} {% endif %} {% if not pub and typ != 'trash' %} {% set shared = False %} {% if worksheet.collaborator_names() %} / {{ worksheet.collaborator_names(5) }} {% set shared = True %} {% endif %} {% if worksheet.viewer_names() %} / {{ worksheet.viewer_names(5) }} {% set shared = True %} {% endif %} {% if (worksheet.owner() != username) or username == 'admin' %} {% set shared = False %} {% endif %} {% if shared %}
+                <a class="share" href="/home/{{ worksheet.filename() }}/share">{{ gettext('Add or Delete') }}</a> {% else %}
+                <a class="share" href="/home/{{ worksheet.filename() }}/share">{{ gettext('Share now') }}</a> {% endif %} {% if worksheet.has_published_version() %}
+                <a href="/home/{{ worksheet.published_version().filename() }}">
                             ({{ gettext('published') }})
-                        </a>
-                        {% endif %}
-
-                        {% endif %}
-                    </td>
-                    <td>
-                        {{ worksheet.html_time_nice_edited(username) }}
-                    </td>
-                </tr>
-            {% endif %}
-            {% endfor %}
-        
-        {%endif%}
-        {% endfor %}
-        {% endif %}
+                        </a> {% endif %} {% endif %}
+            </td>
+            <td>
+                {{ worksheet.html_time_nice_edited(username) }}
+            </td>
+        </tr>
+        {% endif %} {% endfor %} {%endif%} {% endfor %} {% endif %}
     </tbody>
 </table>
 {% endblock %}

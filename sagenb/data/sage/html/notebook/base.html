@@ -28,6 +28,14 @@ INPUT:
 <script type="text/javascript" src="/javascript/jquery/plugins/form/jquery.form.min.js"></script>
 <script type="text/javascript" src="/javascript/jquery/plugins/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="/javascript/jquery/plugins/jqueryFileTree/jqueryFileTree.js"></script>
+<script type="text/javascript" src="/javascript/jquery/plugins/fancyBox/lib/jquery.mousewheel-3.0.6.pack.js"></script>
+<link rel="stylesheet" href="/javascript/jquery/plugins/fancyBox/source/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen" />
+<script type="text/javascript" src="/javascript/jquery/plugins/fancyBox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+<link rel="stylesheet" href="/javascript/jquery/plugins/fancyBox/source/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen" />
+<script type="text/javascript" src="/javascript/jquery/plugins/fancyBox/source/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+<script type="text/javascript" src="/javascript/jquery/plugins/fancyBox/source/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+<link rel="stylesheet" href="/javascript/jquery/plugins/fancyBox/source/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen" />
+<script type="text/javascript" src="/javascript/jquery/plugins/fancyBox/source/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
 <link rel="stylesheet" href="/javascript/jquery/plugins/jpicker/css/jPicker-1.1.6.min.css" type="text/css" />
 <script type="text/javascript" src="/javascript/jquery/plugins/jpicker/jpicker-1.1.6.min.js"></script>
 <link rel="stylesheet" media="screen" type="text/css" href="/javascript/jquery/plugins/colorpicker/css/colorpicker.css" />
@@ -37,6 +45,19 @@ INPUT:
 <!-- Jmol - embedded 3D graphics **needs to be before jmol_lib.js** -->
 <script type="text/javascript" src="/jsmol/JSmol.min.nojq.js"></script>
 
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".fancybox").fancybox({
+        prevEffect		: 'none',
+        nextEffect		: 'none',
+        closeBtn		: false,
+            helpers		: {
+                title	: { type : 'inside' },
+                buttons	: {}
+            }
+        });
+    });
+</script>
 {% if not worksheet.is_published() or worksheet.notebook().conf()['pub_interact'] %}
 <script type="text/javascript" src="/javascript/sage/js/notebook_lib.js"></script>
 <script type="text/javascript" src="/javascript/dynamic/notebook_dynamic.js"></script>

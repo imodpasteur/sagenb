@@ -1335,14 +1335,12 @@ class Worksheet(object):
             sage: nb.delete()
         """
         try:
-            if self.__icon_file == '':
-                self.__icon_file = os.path.join(self.directory(),'icon.png')
             return self.__icon_file
         except AttributeError:
             self.__icon_file = ''
             return self.__icon_file
         
-    def set_icon_file(self, f=''):
+    def set_icon_file(self, name=''):
         """
         Set the icon file for this worksheet
 
@@ -1361,7 +1359,27 @@ class Worksheet(object):
             sage: W.quit()
             sage: nb.delete()
         """
-        self.__icon_file = f
+        name = name.replace(self.data_directory(),'')
+        
+        f = os.path.join(self.data_directory(),name)
+        if os.path.exists(f):
+            self.__icon_file = name
+            try:
+                if not os.path.isdir(f):
+                    from PIL import Image
+                    im = Image.open(f)
+                    im.thumbnail((128,128))
+                    im.save(f+'.thumbnail.png', "PNG")
+            except:
+                pass
+        else:
+            self.__icon_file = ''
+        
+    def thumbnail(self):
+        if self.__icon_file != '':
+            return self.__icon_file+'.thumbnail.png'
+        else:
+            return ''
             
     ##########################################################
     # Publication
@@ -3313,6 +3331,14 @@ if name != '':
     nw.set_name(name)
 nw.enqueue_all_cells()'''.format(new_worksheet_name = name, current_worksheet = CURRENT_WORKSHEET ,input_path = input_path)
         BACKEND_EXECUTE(cmd)
+    
+    def SET_ICON_FILE(filename, worksheetfilename = CURRENT_WORKSHEET ):
+        cmd ='''
+cw = notebook.get_worksheet_with_filename('{worksheetfilename}')
+cw.set_icon_file('{filename}')
+'''.format(filename = filename, worksheetfilename = worksheetfilename)
+        BACKEND_EXECUTE(cmd)
+        
 except:
     print('WARNING: backend execution functions are not available')
 
