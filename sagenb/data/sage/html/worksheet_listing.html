@@ -30,11 +30,7 @@
     });
 </script>
 <script type="text/javascript">
-    var worksheet_filenames = {
-        {
-            worksheet_filenames | tojson | safe
-        }
-    };
+    var worksheet_filenames = {{ worksheet_filenames | tojson | safe }};
 </script>
 <script type="text/javascript" src="/javascript/sage/js/notebook_lib.js"></script>
 <script type="text/javascript" src="/javascript/dynamic/notebook_dynamic.js"></script>
@@ -175,7 +171,8 @@
             </td>
             <td class="owner_collab">
                 {% if worksheet.icon_file() != '' %}
-                <a class="fancybox" data-thumbnail="/home/{{ name }}/data/{{ worksheet.thumbnail() }}" href="/home/{{ name }}/data/{{ worksheet.icon_file() }}">show</a> {% endif %}
+                <a class="fancybox" data-thumbnail="/home/{{ name }}/data/{{ worksheet.thumbnail() }}" href="/home/{{ name }}/data/{{ worksheet.icon_file() }}"> <span class="ui-icon ui-icon-image"></span> </a> 
+                {% endif %}
             </td>
             <td class="owner_collab">
 
@@ -233,7 +230,8 @@
 
             <td class="owner_collab">
                 {% if worksheet.icon_file() != '' %}
-                <a class="fancybox" data-thumbnail="/home/{{ name }}/data/{{ worksheet.thumbnail() }}" href="/home/{{ name }}/data/{{ worksheet.icon_file() }}">show</a> {% endif %}
+                <a class="fancybox" data-thumbnail="/home/{{ name }}/data/{{ worksheet.thumbnail() }}" href="/home/{{ name }}/data/{{ worksheet.icon_file() }}"> <span class="ui-icon ui-icon-image"></span> </a> 
+                {% endif %}
             </td>
 
             <td class="owner_collab">

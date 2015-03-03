@@ -1335,7 +1335,14 @@ class Worksheet(object):
             sage: nb.delete()
         """
         try:
+            if self.__icon_file == '':
+                return self.__icon_file
+            
+            f = os.path.join(self.data_directory(), self.__icon_file)
+            if not os.path.exists(f):
+                self.__icon_file = ''
             return self.__icon_file
+        
         except AttributeError:
             self.__icon_file = ''
             return self.__icon_file
