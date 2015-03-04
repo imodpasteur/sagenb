@@ -2418,7 +2418,7 @@ class Cell(Cell_generic):
             url = os.path.join(self.url_to_self(), F)
             if (F.endswith('.png') or F.endswith('.bmp') or
                 F.endswith('.jpg') or F.endswith('.gif')):
-                images.append('<img src="%s?%d">' % (url, time.time()))
+                images.append('<img class="fancybox" src="%s?%d">' % (url, time.time()))
             elif F.endswith('.obj'):
                 images.append("""<a href="javascript:sage3d_show('%s', '%s_%s', '%s');">Click for interactive view.</a>""" % (url, self._id, F, F[:-4]))
             elif F.endswith('.mtl') or F.endswith(".objmeta"):

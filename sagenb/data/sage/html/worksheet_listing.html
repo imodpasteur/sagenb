@@ -15,7 +15,6 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $(".fancybox")
-            .attr('rel', 'gallery')
             .fancybox({
                 helpers: {
                     thumbs: {
@@ -133,7 +132,11 @@
                 {{ gettext('Welcome to Sage! You can <a href="/new_worksheet">create a new worksheet</a>, view <a href="/pub/">published worksheets</a>, or read the <a href="/help" target="_new">documentation</a>.') }}
             </td>
         </tr>
-        {% endif %} {% else %} {% for worksheet in worksheets %} {% if worksheet.parent()=='' %} {% set name = worksheet.filename() %}
+        {% endif %}
+    {% else %}
+    {% for worksheet in worksheets %}
+        {% if worksheet.parent()=='' %} 
+        {% set name = worksheet.filename() %}
         <tr>
             <td class="entry">
                 {% if pub %}
@@ -171,7 +174,7 @@
             </td>
             <td class="owner_collab">
                 {% if worksheet.icon_file() != '' %}
-                <a class="fancybox" data-thumbnail="/home/{{ name }}/data/{{ worksheet.thumbnail() }}" href="/home/{{ name }}/data/{{ worksheet.icon_file() }}"> <span class="ui-icon ui-icon-image"></span> </a> 
+                <a class="fancybox" rel="worksheet-gallery" data-thumbnail="/home/{{ name }}/data/{{ worksheet.thumbnail() }}" title="<a href='/home/{{ name }}'>{{ worksheet.name() }}</a>" href="/home/{{ name }}/data/{{ worksheet.icon_file() }}"> <span class="ui-icon ui-icon-image"></span> </a> 
                 {% endif %}
             </td>
             <td class="owner_collab">
@@ -187,7 +190,10 @@
                 {{ worksheet.html_time_nice_edited(username) }}
             </td>
         </tr>
-        {% set parentWorksheet = worksheet %} {% for worksheet in worksheets %} {% if parentWorksheet.filename() == worksheet.parent() %} {% set name = worksheet.filename() %}
+    {% set parentWorksheet = worksheet %}
+    {% for worksheet in worksheets %}
+        {% if parentWorksheet.filename() == worksheet.parent() %}
+        {% set name = worksheet.filename() %}
         <tr bgcolor="#e7e9eb">
             <td class="entry">
                 <li class="subworksheet">
@@ -199,10 +205,10 @@
                                 {% else %}
                                 {{ worksheet.rating() }}
                                 {% endif %}
-                            </a> {% else %}
-
-                    <input type="checkbox" unchecked id="{{ name|css_escape }}" /> {# I'm removing this select since it is a massive performance killer and these serve no real purpose at all. Plus google docs got rid of the analogous menu.
-                    <select onchange="go_option(this);" class="worksheet_edit">
+                            </a>
+                    {% else %}
+                    <input type="checkbox" unchecked id="{{ name|css_escape }}" /> 
+                        {# I'm removing this select since it is a massive performance killer and these serve no real purpose at all. Plus google docs got rid of the analogous menu          <select onchange="go_option(this);" class="worksheet_edit">
                         <option value="" title="File options" selected>File</option>
                         <option value="list_rename_worksheet('{{ name }}','{{ worksheet.name() }}');" title="Change the name of this worksheet.">
                             Rename...
@@ -213,7 +219,8 @@
                         <option value="list_publish_worksheet('{{ name }}');" title="Publish this worksheet on the internet">Publish</option>
                         <option value="list_revisions_of_worksheet('{{ name }}');" title="See all revisions of this worksheet">Revisions</option>
                     </select>
-                    #} {% endif %}
+                        #}
+                    {% endif %}
                 </li>
             </td>
 
@@ -230,7 +237,7 @@
 
             <td class="owner_collab">
                 {% if worksheet.icon_file() != '' %}
-                <a class="fancybox" data-thumbnail="/home/{{ name }}/data/{{ worksheet.thumbnail() }}" href="/home/{{ name }}/data/{{ worksheet.icon_file() }}"> <span class="ui-icon ui-icon-image"></span> </a> 
+                <a class="fancybox" rel="{{ parentWorksheet.filename() }}-gallery" data-thumbnail="/home/{{ name }}/data/{{ worksheet.thumbnail() }}" title="<a href='/home/{{ parentWorksheet.filename() }}'> {{ parentWorksheet.name() }}</a>  -  <a href='/home/{{ name }}'>{{ worksheet.name() }}</a>" href="/home/{{ name }}/data/{{ worksheet.icon_file() }}"> <span class="ui-icon ui-icon-image"></span> </a> 
                 {% endif %}
             </td>
 
