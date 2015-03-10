@@ -14,6 +14,20 @@
 <script type="text/javascript" src="/javascript/jquery/plugins/fancyBox/source/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
 <script type="text/javascript">
     $(document).ready(function () {
+        var reload_timer = setTimeout("self.location.reload(true);", 30000);
+        var check_count = 0
+        $("input[type='checkbox']").change(function() {
+            if(this.checked) {
+                check_count++;
+            }
+            else{
+                check_count--;
+            }
+            if(check_count !=0)
+                clearTimeout(reload_timer);
+            else
+                reload_timer = setTimeout("self.location.reload(true);", 30000);
+        });
         $(".fancybox")
             .fancybox({
                 helpers: {
@@ -24,6 +38,13 @@
                             return $(current.element).data('thumbnail');
                         }
                     }
+                },
+                afterLoad:function(){
+                    clearTimeout(reload_timer);
+                },
+                afterClose:function(){
+                    if(check_count ==0)
+                        reload_timer = setTimeout("self.location.reload(true);", 30000);
                 }
             });
     });
@@ -33,9 +54,7 @@
 </script>
 <script type="text/javascript" src="/javascript/sage/js/notebook_lib.js"></script>
 <script type="text/javascript" src="/javascript/dynamic/notebook_dynamic.js"></script>
-<script type="text/javascript">
-    setTimeout("self.location.reload(true);", 30000);
-</script>
+
 {% else %}
 <script type="text/javascript" src="/javascript/sage/js/ws_list.js"></script>
 {% endif %} {% endblock %} {% block main %} {% if readonly is defined and readonly %}
@@ -147,7 +166,8 @@
                     {% else %}
                     {{ worksheet.rating() }}
                     {% endif %}
-                </a> {% else %}
+                </a> 
+                {% else %}
 
                 <input type="checkbox" unchecked id="{{ name|css_escape }}" /> {# I'm removing this select since it is a massive performance killer and these serve no real purpose at all. Plus google docs got rid of the analogous menu.
                 <select onchange="go_option(this);" class="worksheet_edit">
@@ -161,7 +181,8 @@
                     <option value="list_publish_worksheet('{{ name }}');" title="Publish this worksheet on the internet">Publish</option>
                     <option value="list_revisions_of_worksheet('{{ name }}');" title="See all revisions of this worksheet">Revisions</option>
                 </select>
-                #} {% endif %}
+                #} 
+                {% endif %}
             </td>
 
             <td class="worksheet_link">
@@ -170,7 +191,10 @@
                     {% if worksheet.check_comp() and worksheet.start_next_comp() %}{% endif %}
                     {% if worksheet.computing() %} <img src="/javascript/sage/images/computing-1.gif" alt="Computing" style="width:14px;height:14px"> {{worksheet.status_text()}}{% endif %}
                     {{ worksheet.truncated_name(50) | escape}}
-                </a> {% if not pub and worksheet.is_published() %}(Published){% endif %}
+                </a> 
+                {% if not pub and worksheet.is_published() %}
+                (Published)
+                {% endif %}
             </td>
             <td class="owner_collab">
                 {% if worksheet.icon_file() != '' %}
@@ -179,12 +203,19 @@
             </td>
             <td class="owner_collab">
 
-                {% if not pub %} {{ worksheet.owner() }} {% else %} {{worksheet.worksheet_that_was_published().owner()}} {% endif %} {% if not pub and typ != 'trash' %} {% set shared = False %} {% if worksheet.collaborator_names() %} / {{ worksheet.collaborator_names(5) }} {% set shared = True %} {% endif %} {% if worksheet.viewer_names() %} / {{ worksheet.viewer_names(5) }} {% set shared = True %} {% endif %} {% if (worksheet.owner() != username) or username == 'admin' %} {% set shared = False %} {% endif %} {% if shared %}
+                {% if not pub %} 
+                {{ worksheet.owner() }} 
+                {% else %} 
+                {{worksheet.worksheet_that_was_published().owner()}} {% endif %} {% if not pub and typ != 'trash' %} {% set shared = False %} {% if worksheet.collaborator_names() %} / {{ worksheet.collaborator_names(5) }} {% set shared = True %} {% endif %} {% if worksheet.viewer_names() %} / {{ worksheet.viewer_names(5) }} {% set shared = True %} 
+                {% endif %} 
+                {% if (worksheet.owner() != username) or username == 'admin' %} {% set shared = False %} {% endif %} {% if shared %}
                 <a class="share" href="/home/{{ worksheet.filename() }}/share">{{ gettext('Add or Delete') }}</a> {% else %}
                 <a class="share" href="/home/{{ worksheet.filename() }}/share">{{ gettext('Share now') }}</a> {% endif %} {% if worksheet.has_published_version() %}
                 <a href="/home/{{ worksheet.published_version().filename() }}">
                     ({{ gettext('published') }})
-                </a> {% endif %} {% endif %}
+                </a> 
+                {% endif %} 
+                {% endif %}
             </td>
             <td>
                 {{ worksheet.html_time_nice_edited(username) }}
