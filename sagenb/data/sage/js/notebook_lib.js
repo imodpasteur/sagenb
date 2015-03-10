@@ -1540,8 +1540,10 @@ function set_worksheet_list_checks() {
     for (i = 0; i < worksheet_filenames.length; i += 1) {
         id = worksheet_filenames[i].replace(/[^\-A-Za-z_0-9]/g, '-');
         X = get_element(id);
-        if (X)
-            X.checked = C.checked;
+        if (X){
+            if($(X).is(":visible"))
+                $(X).prop("checked",C.checked).trigger("change");
+        }
     }
 }
 
@@ -1568,7 +1570,7 @@ function checked_worksheet_filenames() {
         {
             if (X.checked) {
                 checked_filenames.push(worksheet_filenames[i]);
-                X.checked = 0;
+                $(X).prop("checked", false).trigger("change");
             }
         }
     }

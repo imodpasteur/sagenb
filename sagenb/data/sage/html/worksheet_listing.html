@@ -16,6 +16,15 @@
     $(document).ready(function () {
         var reload_timer = setTimeout("self.location.reload(true);", 30000);
         var check_count = 0
+        $("input[type='checkbox']").each(function(){
+            if(localStorage.getItem($(this).attr("id")+"_checked") == 'true')
+               this.checked = true;
+        })
+        $("input[id^='folder_']").change(function(){
+            var id = $(this).attr('id')
+            $("[rel ='"+id+"']").prop("checked",this.checked).trigger("change");
+            
+        });
         $("input[type='checkbox']").change(function() {
             if(this.checked) {
                 check_count++;
@@ -23,10 +32,16 @@
             else{
                 check_count--;
             }
+            try{
+                localStorage.setItem($(this).attr("id")+"_checked", this.checked);
+            }
+            catch(e){
             if(check_count !=0)
                 clearTimeout(reload_timer);
             else
                 reload_timer = setTimeout("self.location.reload(true);", 30000);
+            }
+            
         });
         $(".fancybox")
             .fancybox({
@@ -47,6 +62,45 @@
                         reload_timer = setTimeout("self.location.reload(true);", 30000);
                 }
             });
+        $('.collapse_span').each(function(i){
+            $header = $(this)
+            //getting the elements 
+            $content = $('[id^='+$(this).attr('rel')+']')
+            if($content.length<=1)
+            {
+                $(this).hide();
+                return;
+            }
+            fkey = $(this).attr('rel')+'visible'
+            if(localStorage.getItem(fkey) == "false")
+            {
+                $content.hide();
+            }
+            else
+            {
+                $content.show();
+            }  
+            $header.text(function () {
+                return $content.is(":visible") ? " - " : " + ";
+            });
+        });
+        
+        $('.collapse_span').click(function () {
+            $header = $(this)
+            //getting the elements 
+            $content = $('[id^='+$header.attr('rel')+']')
+            $content.slideToggle(100, function () {
+                //execute this after slideToggle is done
+                //change text of header based on visibility of content div
+                $header.text(function () {
+                    //change text based on condition
+                    return $content.is(":visible") ? " - " : " + ";
+                });
+                fkey = $header.attr('rel')+'visible'
+                localStorage.setItem(fkey, $content.is(":visible"))                
+            });
+
+        });
     });
 </script>
 <script type="text/javascript">
@@ -158,8 +212,9 @@
         {% set name = worksheet.filename() %}
         <tr>
             <td class="entry">
+                
+                
                 {% if pub %}
-
                 <a class="worksheet_edit" href="/home/{{ name }}/rating_info">
                     {% if worksheet.rating() < 0 %}
                     ----
@@ -181,8 +236,16 @@
                     <option value="list_publish_worksheet('{{ name }}');" title="Publish this worksheet on the internet">Publish</option>
                     <option value="list_revisions_of_worksheet('{{ name }}');" title="See all revisions of this worksheet">Revisions</option>
                 </select>
+                    
                 #} 
                 {% endif %}
+                
+                <span class='collapse_span' rel='folder_{{ name|css_escape }}_' style="cursor:pointer;"> + </span>
+                    
+                {% if not pub %}
+                    <input type="checkbox" id='folder_{{ name|css_escape }}_ck' unchecked="" style="display: none;" >
+                {% endif %}
+                    
             </td>
 
             <td class="worksheet_link">
@@ -225,7 +288,9 @@
     {% for worksheet in worksheets %}
         {% if parentWorksheet.filename() == worksheet.parent() %}
         {% set name = worksheet.filename() %}
-        <tr bgcolor="#e7e9eb">
+        
+        
+        <tr bgcolor="#e7e9eb" id='folder_{{ parentWorksheet.filename()|css_escape }}_{{ name|css_escape }}' style="display: none;">
             <td class="entry">
                 <li class="subworksheet">
                     {% if pub %}
@@ -238,7 +303,7 @@
                                 {% endif %}
                             </a>
                     {% else %}
-                    <input type="checkbox" unchecked id="{{ name|css_escape }}" /> 
+                    <input type="checkbox" unchecked id="{{ name|css_escape }}" rel='folder_{{ parentWorksheet.filename()|css_escape }}_ck' /> 
                         {# I'm removing this select since it is a massive performance killer and these serve no real purpose at all. Plus google docs got rid of the analogous menu          <select onchange="go_option(this);" class="worksheet_edit">
                         <option value="" title="File options" selected>File</option>
                         <option value="list_rename_worksheet('{{ name }}','{{ worksheet.name() }}');" title="Change the name of this worksheet.">
@@ -285,7 +350,13 @@
                 {{ worksheet.html_time_nice_edited(username) }}
             </td>
         </tr>
-        {% endif %} {% endfor %} {%endif%} {% endfor %} {% endif %}
+        
+            {% endif %} 
+            {% endfor %} 
+  
+        {%endif%} 
+    {% endfor %} 
+    {% endif %}
     </tbody>
 </table>
 {% endblock %}
